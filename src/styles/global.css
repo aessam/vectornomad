@@ -115,9 +115,11 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.15; letter-spacing: -0.
 .tile.row.featured .tile-media { width: 200px; flex-basis: 200px; }
 .tile.row.featured .tile-title { font-size: 22px; }
 @media (max-width: 560px) {
-  /* Stay in row layout so the square artwork is never cropped. */
-  .tile.row.featured .tile-media { width: 112px; flex-basis: 112px; }
-  .tile.row.featured .tile-title { font-size: 19px; }
+  /* Full-width square artwork, uncropped, like Apple Podcasts on a phone. */
+  .tile.row.featured { flex-direction: column; }
+  .tile.row.featured .tile-media { width: 100%; flex-basis: auto; }
+  .tile.row.featured .tile-media > img { height: auto; aspect-ratio: 1 / 1; }
+  .tile.row.featured .tile-title { font-size: 20px; }
 }
 
 .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
