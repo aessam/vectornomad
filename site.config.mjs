@@ -7,8 +7,8 @@ export const site = {
   url: 'https://USERNAME.github.io',
   base: '/',
   name: 'Ahmed Essam',
-  tagline: 'Apple engineering, in public.',
-  intro: 'A podcast, videos, articles in English, and essays in Arabic.',
+  tagline: 'Engineering, culture, and coffee.',
+  intro: 'قهوة عصام, a podcast and videos in Arabic. Articles on Medium in English. Essays in Arabic, and links worth keeping.',
 
   feeds: {
     // Full RSS URL of the podcast (from your host: Transistor, Simplecast, Anchor...).

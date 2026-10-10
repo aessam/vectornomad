@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { fmtDate } from '../lib/format';
+import { fmtDate, langOf } from '../lib/format';
 interface Props { entry: CollectionEntry<'videos'> }
 const { entry } = Astro.props;
 const d = entry.data;
@@ -14,7 +14,7 @@ const bg = d.thumbnail ? `background-image:url("${encodeURI(d.thumbnail)}")` : u
       <svg viewBox="0 0 24 24" width="28" height="28"><path d="M8 5v14l11-7z" fill="currentColor"></path></svg>
     </span>
   </button>
-  <h3 class="card-title"><a href={d.url}>{d.title}</a></h3>
+  <h3 class="card-title" lang={langOf(d.title)} dir="auto"><a href={d.url}>{d.title}</a></h3>
   <div class="meta">{fmtDate(d.date)}</div>
 </article>
 

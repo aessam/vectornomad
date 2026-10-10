@@ -17,3 +17,8 @@ export function fmtDuration(raw?: string): string | undefined {
   const min = Math.round(seconds / 60);
   return min >= 60 ? `${Math.floor(min / 60)} h ${min % 60} min` : `${min} min`;
 }
+
+// Feed items carry no language. Detect Arabic script so cards can set lang and dir per item.
+export function langOf(text: string): Lang {
+  return /[؀-ۿ]/.test(text) ? 'ar' : 'en';
+}

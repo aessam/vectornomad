@@ -3,4 +3,4 @@ dist/
 .astro/
 .DS_Store
 .claude/hooks-metrics.md
-brand/
+/brand/

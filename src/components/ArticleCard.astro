@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { fmtDate } from '../lib/format';
+import { fmtDate, langOf } from '../lib/format';
 interface Props { entry: CollectionEntry<'articles'>; compact?: boolean }
 const { entry, compact = false } = Astro.props;
 const d = entry.data;
@@ -9,8 +9,8 @@ const d = entry.data;
 <article class:list={['art', { compact, card: !compact }]}>
   {d.image ? <img src={d.image} alt="" loading="lazy" class="cover" /> : <div class="cover ph" aria-hidden="true"></div>}
   <div class="body">
-    <h3 class="card-title"><a href={d.url}>{d.title}</a></h3>
-    {d.excerpt && <p class="muted">{d.excerpt}</p>}
+    <h3 class="card-title" lang={langOf(d.title)} dir="auto"><a href={d.url}>{d.title}</a></h3>
+    {d.excerpt && <p class="muted" lang={langOf(d.excerpt)} dir="auto">{d.excerpt}</p>}
     <div class="meta">{fmtDate(d.date)} · Medium</div>
   </div>
 </article>
