@@ -117,8 +117,10 @@ function articles(doc) {
     const link = str(it.link).replace(/\?source=.*$/, '');
     const title = str(it.title);
     // Medium repeats the title as the first <h3> of content:encoded. Drop it from the excerpt.
+    // Compare with collapsed whitespace: Medium titles carry hair spaces (U+200A) and the body uses nbsp.
     let text = stripHtml(html);
-    if (text.startsWith(title)) text = text.slice(title.length).trim();
+    const normTitle = title.replace(/\s+/g, ' ');
+    if (text.startsWith(normTitle)) text = text.slice(normTitle.length).trim();
     return {
       id: slug(str(it.guid) || link),
       title,

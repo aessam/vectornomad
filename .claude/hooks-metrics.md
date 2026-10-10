@@ -27,3 +27,9 @@ Append-only log. Each row = one hook invocation. Analyze with `python3 scripts/h
 | 1791665280632 | pre-bash-python-venv | PreToolUse | cat > ADR.md <<'EOF'# ADR## 2026-10-10 DSCN-1: Astro, sta | 39 | 0 | informational | non-python |
 | 1791665280739 | post-bash-cost-detect | PostToolUse | cat > ADR.md <<'EOF'# ADR## 2026-10-10 DSCN-1: Astro, sta | 42 | 0 | informational | non-paid |
 | 1791665307887 | pre-bash-python-venv | PreToolUse | scripts/smoke-feeds.sh /private/tmp/claude-501/-Users-aessam | 45 | 0 | informational | non-python |
+| 1791665308605 | post-bash-cost-detect | PostToolUse | scripts/smoke-feeds.sh /private/tmp/claude-501/-Users-aessam | 42 | 0 | informational | non-paid |
+| 1791665323803 | pre-bash-python-venv | PreToolUse | node -e "const {XMLParser}=require('fast-xml-parser');const | 46 | 0 | informational | non-python |
+| 1791665324200 | post-bash-cost-detect | PostToolUse | node -e "const {XMLParser}=require('fast-xml-parser');const | 42 | 0 | informational | non-paid |
+| 1791665333568 | pre-write-config-guard | PreToolUse | /Users/aessam/tmp/MyWebsite/scripts/fetch-feeds.mjs | 47 | 0 | advisory | non-sensitive |
+| 1791665333646 | post-edit-lint | PostToolUse | ~/tmp/MyWebsite/scripts/fetch-feeds.mjs | 42 | 0 | advisory | ext skipped |
+| 1791665337746 | pre-bash-python-venv | PreToolUse | scripts/smoke-feeds.sh /private/tmp/claude-501/-Users-aessam | 47 | 0 | informational | non-python |
