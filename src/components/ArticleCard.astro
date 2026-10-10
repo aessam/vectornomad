@@ -1,32 +1,15 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import Card from './Card.astro';
 import { fmtDate, langOf } from '../lib/format';
-interface Props { entry: CollectionEntry<'articles'>; compact?: boolean }
-const { entry, compact = false } = Astro.props;
+interface Props { entry: CollectionEntry<'articles'>; layout?: 'stack' | 'row' }
+const { entry, layout = 'stack' } = Astro.props;
 const d = entry.data;
 ---
 
-<article class:list={['art', { compact, card: !compact }]}>
-  {d.image ? <img src={d.image} alt="" loading="lazy" class="cover" /> : <div class="cover ph" aria-hidden="true"></div>}
-  <div class="body">
-    <h3 class="card-title" lang={langOf(d.title)} dir="auto"><a href={d.url}>{d.title}</a></h3>
-    {d.excerpt && <p class="muted" lang={langOf(d.excerpt)} dir="auto">{d.excerpt}</p>}
-    <div class="meta">{fmtDate(d.date)} · Medium</div>
-  </div>
-</article>
-
-<style>
-  .art { display: flex; gap: 20px; align-items: flex-start; }
-  /* Explicit width: a replaced element in a flex row keeps its natural width otherwise (min-width: auto). */
-  .cover { flex: 0 0 200px; width: 200px; height: auto; aspect-ratio: 4 / 3; border-radius: 10px; object-fit: cover; }
-  .ph { background: var(--line); }
-  .compact .cover { flex-basis: 96px; width: 96px; aspect-ratio: 1; border-radius: 8px; }
-  .body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-  .compact .card-title { font-size: 17px; }
-  .compact p { font-size: 15px; }
-  p { margin: 0; line-height: 1.5; }
-  @media (max-width: 560px) {
-    .art:not(.compact) { flex-direction: column; }
-    .art:not(.compact) .cover { width: 100%; flex-basis: auto; }
-  }
-</style>
+<Card layout={layout} tone={d.image ? 'card' : 'tint'}>
+  {d.image && <img slot="media" src={d.image} alt="" loading="lazy" style={layout === 'row' ? 'aspect-ratio: 1 / 1' : undefined} />}
+  <Fragment slot="eyebrow">Medium · {fmtDate(d.date)}</Fragment>
+  <h3 class="tile-title" lang={langOf(d.title)} dir="auto"><a href={d.url}>{d.title}</a></h3>
+  {d.excerpt && <p class="tile-sub" lang={langOf(d.excerpt)} dir="auto">{d.excerpt}</p>}
+</Card>

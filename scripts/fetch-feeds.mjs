@@ -121,7 +121,8 @@ function articles(doc) {
     const title = str(it.title);
     // Medium repeats the title as the first <h3> of content:encoded. Drop it from the excerpt.
     // Compare with collapsed whitespace: Medium titles carry hair spaces (U+200A) and the body uses nbsp.
-    let text = stripHtml(html);
+    // Drop figure captions first ("Photo by X on Unsplash") so they do not lead the excerpt.
+    let text = stripHtml(str(html).replace(/<figcaption[\s\S]*?<\/figcaption>/gi, ' '));
     const normTitle = title.replace(/\s+/g, ' ');
     if (text.startsWith(normTitle)) text = text.slice(normTitle.length).trim();
     return {

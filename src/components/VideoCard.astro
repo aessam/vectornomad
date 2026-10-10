@@ -1,22 +1,22 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import Card from './Card.astro';
 import { fmtDate, langOf } from '../lib/format';
 interface Props { entry: CollectionEntry<'videos'> }
 const { entry } = Astro.props;
 const d = entry.data;
-// Quoted and URI-encoded so a feed value cannot break out of the CSS url().
-const bg = d.thumbnail ? `background-image:url("${encodeURI(d.thumbnail)}")` : undefined;
 ---
 
-<article class="video">
-  <button type="button" class="yt-facade" data-video-id={d.videoId} aria-label={`Play: ${d.title}`} style={bg}>
+<Card class="video">
+  <button slot="media" type="button" class="yt-facade" data-video-id={d.videoId} aria-label={`Play: ${d.title}`}>
+    {d.thumbnail && <img src={d.thumbnail} alt="" loading="lazy" />}
     <span class="play" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="28" height="28"><path d="M8 5v14l11-7z" fill="currentColor"></path></svg>
+      <svg viewBox="0 0 24 24" width="26" height="26"><path d="M8 5v14l11-7z" fill="currentColor"></path></svg>
     </span>
   </button>
-  <h3 class="card-title" lang={langOf(d.title)} dir="auto"><a href={d.url}>{d.title}</a></h3>
-  <div class="meta">{fmtDate(d.date)}</div>
-</article>
+  <Fragment slot="eyebrow">Video · {fmtDate(d.date)}</Fragment>
+  <h3 class="tile-title no-stretch" lang={langOf(d.title)} dir="auto"><a href={d.url}>{d.title}</a></h3>
+</Card>
 
 <script>
   // Facade: thumbnail only until clicked, then the real player. Keeps the page light and cookie-free.
@@ -36,23 +36,25 @@ const bg = d.thumbnail ? `background-image:url("${encodeURI(d.thumbnail)}")` : u
 </script>
 
 <style>
-  .video { display: flex; flex-direction: column; gap: 10px; }
-  .yt-facade, :global(.yt-frame) {
+  .yt-facade {
+    position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
     border: 0;
-    border-radius: 10px;
-    background: var(--dark) center / cover no-repeat;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
     padding: 0;
+    background: var(--dark);
+    cursor: pointer;
+    display: block;
   }
+  .yt-facade img { width: 100%; height: 100%; object-fit: cover; }
   .play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
     width: 56px; height: 56px; border-radius: 50%;
     background: var(--play); color: #fff;
     display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   }
-  .card-title { font-size: 17px; }
+  :global(.yt-frame) { width: 100%; aspect-ratio: 16 / 9; border: 0; display: block; }
 </style>

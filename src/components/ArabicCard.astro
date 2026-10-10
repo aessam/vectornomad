@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import Card from './Card.astro';
 import { fmtDate } from '../lib/format';
 import { href } from '../lib/url';
 interface Props { entry: CollectionEntry<'ar'>; featured?: boolean }
@@ -7,14 +8,8 @@ const { entry, featured = false } = Astro.props;
 const d = entry.data;
 ---
 
-<article lang="ar" dir="rtl" class:list={['ar', { soft: featured }]}>
-  <div class="meta">{fmtDate(d.date, 'ar')}</div>
-  <h3 class="card-title"><a href={href(`/ar/${entry.id}`)}>{d.title}</a></h3>
-  {featured && d.summary && <p class="muted">{d.summary}</p>}
-</article>
-
-<style>
-  .ar { display: flex; flex-direction: column; gap: 8px; }
-  .card-title { font-size: 24px; font-weight: 700; }
-  p { margin: 0; }
-</style>
+<Card tone="tint" lang="ar" dir="rtl">
+  <Fragment slot="eyebrow">{fmtDate(d.date, 'ar')}</Fragment>
+  <h3 class="tile-title ar"><a href={href(`/ar/${entry.id}`)}>{d.title}</a></h3>
+  {featured && d.summary && <p class="tile-sub">{d.summary}</p>}
+</Card>

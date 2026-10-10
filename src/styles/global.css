@@ -3,16 +3,19 @@
   --brand-navy: #184377;
   --brand-teal: #16b9a7;
   --brand-coral: #f06263;
-  --bg: #ffffff;
+  --bg: #f5f7fa;
   --ink: #0e2244;
   --muted: #2b588c;
   --meta: #476f9c;
   --line: #dde4ee;
-  --soft: #eef3f8;
+  --tint: #e8eef6;
   --accent: #184377;
   --play: #f06263;
   --dark: #0e2244;
   --card: #ffffff;
+  --shadow: 0 1px 2px rgba(14, 34, 68, 0.06), 0 6px 20px rgba(14, 34, 68, 0.08);
+  --shadow-hover: 0 2px 4px rgba(14, 34, 68, 0.08), 0 14px 32px rgba(14, 34, 68, 0.14);
+  --radius: 20px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -21,11 +24,13 @@
     --muted: #c1e4e0;
     --meta: #9ad5ce;
     --line: #1b335f;
-    --soft: #0e2244;
+    --tint: #142a4f;
     --accent: #5cc2b4;
     --play: #f5999e;
     --dark: #060b14;
-    --card: #0e2244;
+    --card: #11213d;
+    --shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+    --shadow-hover: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 14px 32px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -37,12 +42,7 @@ html {
   line-height: 1.55;
   -webkit-text-size-adjust: 100%;
 }
-body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
 a { color: inherit; }
 a:hover { color: var(--accent); }
 img { max-width: 100%; height: auto; display: block; }
@@ -54,11 +54,12 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.15; letter-spacing: -0.
 :lang(ar) p { font-size: 1.05em; }
 
 .wrap { max-width: 1232px; width: 100%; margin: 0 auto; padding: 0 24px; box-sizing: border-box; }
-.meta {
+.meta, .eyebrow {
   font-family: var(--font-plex-mono);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--meta);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .muted { color: var(--muted); }
 
@@ -74,24 +75,50 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.15; letter-spacing: -0.
 }
 .btn { background: var(--accent); color: #ffffff; }
 .btn:hover { color: #ffffff; opacity: 0.88; }
-.btn-ghost { border: 1px solid var(--line); }
+.btn-ghost { border: 1px solid var(--line); background: var(--card); }
 
-.section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 12px;
-}
-.section-head h2 { font-size: 24px; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.section-head h2 { font-size: 26px; }
 .section-head a { font-size: 15px; font-weight: 600; color: var(--accent); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
 
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
-.soft { background: var(--soft); border-radius: 16px; padding: 28px; }
-.card-title { font-size: 20px; font-weight: 600; line-height: 1.3; }
-.card-title a { text-decoration: none; }
-.card-title a:hover { text-decoration: underline; }
+/* Tiles: App Store Today / Apple Podcasts pattern. No border, soft shadow, media bleeds to the edge. */
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+.tile.tint { background: var(--tint); }
+.tile-media { flex: none; background: var(--line); }
+.tile-media > img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.tile-body { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 18px 20px 20px; min-width: 0; }
+.tile-title { font-size: 18px; font-weight: 600; line-height: 1.3; }
+.tile-title a { text-decoration: none; }
+.tile-title.ar { font-size: 24px; font-weight: 700; }
+.tile-sub { margin: 0; font-size: 15px; line-height: 1.5; color: var(--muted); }
+.tile-footer { margin-top: auto; padding-top: 8px; position: relative; z-index: 1; }
+
+/* Whole tile is the tap target, except where the media itself is the control. */
+.tile-title:not(.no-stretch) a::after { content: ''; position: absolute; inset: 0; }
+.tile-title:not(.no-stretch) a:hover { color: inherit; }
+.tile:has(.tile-title:not(.no-stretch) a:hover) .tile-title a { color: var(--accent); }
+
+/* Row layout: square media on the inline-start side. */
+.tile.row { flex-direction: row; }
+.tile.row .tile-media { width: 112px; flex: 0 0 112px; }
+.tile.row .tile-media > img { width: 100%; height: 100%; aspect-ratio: auto; }
+.tile.row.featured .tile-media { width: 200px; flex-basis: 200px; }
+.tile.row.featured .tile-title { font-size: 22px; }
+@media (max-width: 560px) {
+  /* Stay in row layout so the square artwork is never cropped. */
+  .tile.row.featured .tile-media { width: 112px; flex-basis: 112px; }
+  .tile.row.featured .tile-title { font-size: 19px; }
+}
 
 .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; }
@@ -107,4 +134,4 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.15; letter-spacing: -0.
   html { font-size: 17px; }
 }
 
-audio { width: 100%; margin-top: 4px; }
+audio { width: 100%; display: block; }

@@ -14,9 +14,9 @@ const items = await stream();
   <div class="list">
     {items.map((it) => {
       if (it.kind === 'episode') return <EpisodeCard entry={it.entry} />;
-      if (it.kind === 'video') return <div class="card"><VideoCard entry={it.entry} /></div>;
-      if (it.kind === 'article') return <ArticleCard entry={it.entry} />;
-      if (it.kind === 'ar') return <div class="card"><ArabicCard entry={it.entry} featured /></div>;
+      if (it.kind === 'video') return <VideoCard entry={it.entry} />;
+      if (it.kind === 'article') return <ArticleCard entry={it.entry} layout="row" />;
+      if (it.kind === 'ar') return <ArabicCard entry={it.entry} featured />;
       return <LinkCard entry={it.entry} />;
     })}
   </div>
@@ -25,5 +25,4 @@ const items = await stream();
 <style>
   h1 { font-size: 40px; }
   .list { max-width: 760px; display: flex; flex-direction: column; gap: 20px; }
-  .list :global(.soft) { background: transparent; padding: 0; }
 </style>

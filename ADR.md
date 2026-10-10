@@ -25,3 +25,8 @@ Decision: Medium and LinkedIn articles render as preview cards. Podcast uses nat
 Context: brand files from the 2020 identity (Madar Studio): navy #184377, teal #16B9A7, coral #F06263, white, with shade and tint ramps in Color Palette.pdf.
 Decision: navy is the text accent and button color (9:1 on white). Teal and coral are reserved for non-text UI: play buttons, badges. Dark mode uses the navy shade #0C1524 as ground and the teal tint #5CC2B4 as accent. Square logo SVG in the header and as favicon.
 Consequences: `brand/` source files stay out of git (gitignored); only `public/brand/logo.svg` and `public/favicon.svg` ship. Fonts unchanged (Amiri, Crimson Pro); the brand's display serif is close enough to Crimson Pro.
+
+## 2026-10-10 DSCN-5: One tile component, App Store Today / Apple Podcasts pattern
+Context: five card components each invented their own layout; the article card collapsed in a flex row and the set looked inconsistent.
+Decision: `Card.astro` is the only card shell (media, eyebrow, body, footer slots; `stack` or `row` layout; `card` or `tint` tone). No borders, 20px radius, media bleeds to the edge at a fixed aspect ratio, soft shadow, 2px hover lift, whole tile is the link. Page ground moves to a navy-tinted off-white (#F5F7FA) so white tiles read as tiles; dark mode uses flat elevated fills with a hairline instead of shadow.
+Consequences: wrappers are a few lines each. Any new content type gets a tile for free. The video tile keeps the facade button as its control, so its title is not a stretched link.
