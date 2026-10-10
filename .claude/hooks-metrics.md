@@ -33,3 +33,5 @@ Append-only log. Each row = one hook invocation. Analyze with `python3 scripts/h
 | 1791665333568 | pre-write-config-guard | PreToolUse | /Users/aessam/tmp/MyWebsite/scripts/fetch-feeds.mjs | 47 | 0 | advisory | non-sensitive |
 | 1791665333646 | post-edit-lint | PostToolUse | ~/tmp/MyWebsite/scripts/fetch-feeds.mjs | 42 | 0 | advisory | ext skipped |
 | 1791665337746 | pre-bash-python-venv | PreToolUse | scripts/smoke-feeds.sh /private/tmp/claude-501/-Users-aessam | 47 | 0 | informational | non-python |
+| 1791665338654 | post-bash-cost-detect | PostToolUse | scripts/smoke-feeds.sh /private/tmp/claude-501/-Users-aessam | 41 | 0 | informational | non-paid |
+| 1791665448966 | pre-bash-python-venv | PreToolUse | git ls-files  grep -E '^(package-lock.json.github/workflow | 52 | 0 | informational | non-python |

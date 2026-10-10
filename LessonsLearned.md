@@ -8,3 +8,6 @@ A `curl -I` on medium.com looked like a block. A GET with a browser user agent r
 
 ## 2026-10-10 Astro 7 defaults that matter here
 `compressHTML` defaults to `'jsx'`, which removes whitespace between inline elements. Mixed-direction meta lines need the spaces, so it is set to `true`. The Rust compiler rejects unclosed tags, so every element is closed.
+
+## 2026-10-10 Dates are formatted at build time in UTC
+`fmtDate` runs in the Actions runner, so a post published late evening local time can show the next calendar day. Acceptable for now; pass a fixed `timeZone` to `Intl.DateTimeFormat` if it bothers you.
