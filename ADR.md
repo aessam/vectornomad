@@ -12,7 +12,8 @@ Rationale: user choice. Home shows the latest of each source; the merged stream 
 Consequences: Arabic lives as an RTL section inside an LTR home, and as its own RTL pages under /ar.
 
 ## 2026-10-10 DSCN-3: Amiri for Arabic, Crimson Pro for English, IBM Plex Mono for meta, all self-hosted
-Context: user wants Amiri. Amiri is a Naskh book face; its Latin glyphs derive from Crimson, so Crimson Pro is the matching Latin.
+Context: user wants Amiri. Amiri is a Naskh book face. Crimson Pro chosen as a matching old-style serif for English (the Amiri README does not document its Latin source; the Crimson derivation is unconfirmed).
+Alternative, one line: point `html { font-family }` at `--font-amiri` to use Amiri's own Latin everywhere.
 Rationale: one typographic voice across both languages. Astro's fonts API copies the files into the build, so no third-party font requests at read time.
 Consequences: Amiri needs larger size and looser leading than a sans (20px body, 1.9 to 2.0 line-height). Nav in Amiri at 19px.
 

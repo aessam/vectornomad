@@ -4,7 +4,8 @@ import { fmtDate } from '../lib/format';
 interface Props { entry: CollectionEntry<'videos'> }
 const { entry } = Astro.props;
 const d = entry.data;
-const bg = d.thumbnail ? `background-image:url(${d.thumbnail})` : undefined;
+// Quoted and URI-encoded so a feed value cannot break out of the CSS url().
+const bg = d.thumbnail ? `background-image:url("${encodeURI(d.thumbnail)}")` : undefined;
 ---
 
 <article class="video">

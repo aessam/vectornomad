@@ -2,16 +2,19 @@ import { defineCollection } from 'astro:content';
 import { glob, file } from 'astro/loaders';
 import { z } from 'astro/zod';
 
+// Feed data is untrusted input. Only http(s) may reach an href, src or CSS url().
+const webUrl = z.string().url().refine((u) => /^https?:\/\//i.test(u), { message: 'http(s) URLs only' });
+
 // Auto-filled by scripts/fetch-feeds.mjs (CI runs it every build).
 const episodes = defineCollection({
   loader: file('src/data/feeds/episodes.json'),
   schema: z.object({
     title: z.string(),
-    url: z.string().url(),
+    url: webUrl,
     date: z.coerce.date(),
-    audio: z.string().url(),
+    audio: webUrl,
     duration: z.string().optional(),
-    image: z.string().url().optional(),
+    image: webUrl.optional(),
     summary: z.string().optional(),
   }),
 });
@@ -20,10 +23,10 @@ const videos = defineCollection({
   loader: file('src/data/feeds/videos.json'),
   schema: z.object({
     title: z.string(),
-    url: z.string().url(),
+    url: webUrl,
     date: z.coerce.date(),
     videoId: z.string(),
-    thumbnail: z.string().url().optional(),
+    thumbnail: webUrl.optional(),
     description: z.string().optional(),
   }),
 });
@@ -32,9 +35,9 @@ const articles = defineCollection({
   loader: file('src/data/feeds/articles.json'),
   schema: z.object({
     title: z.string(),
-    url: z.string().url(),
+    url: webUrl,
     date: z.coerce.date(),
-    image: z.string().url().optional(),
+    image: webUrl.optional(),
     excerpt: z.string().optional(),
     tags: z.array(z.string()).default([]),
   }),
@@ -45,7 +48,7 @@ const links = defineCollection({
   loader: glob({ base: './src/content/links', pattern: '**/*.md' }),
   schema: z.object({
     kind: z.enum(['mine', 'like']),
-    url: z.string().url(),
+    url: webUrl,
     title: z.string(),
     date: z.coerce.date(),
     note: z.string().optional(),
