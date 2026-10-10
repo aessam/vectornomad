@@ -12,20 +12,20 @@ export const site = {
 
   feeds: {
     // Full RSS URL of the podcast (from your host: Transistor, Simplecast, Anchor...).
-    podcast: '',
+    podcast: 'https://feeds.simplecast.com/Bh4o49Be',
     // The UC... id from your channel URL. Feed is youtube.com/feeds/videos.xml?channel_id=UC...
-    youtubeChannelId: '',
+    youtubeChannelId: 'UCOlq9nrbWzOd7tcQHG130TQ',
     // Medium handle without the @. Feed is medium.com/feed/@handle
-    mediumUser: '',
+    mediumUser: 'aessam',
   },
 
   // Shown on /about and /podcast. Leave empty to hide.
   social: {
-    youtube: '',
-    medium: '',
-    linkedin: '',
-    twitter: '',
-    applePodcasts: '',
+    youtube: 'https://www.youtube.com/@essamcafe',
+    medium: 'https://medium.com/@aessam',
+    linkedin: 'https://www.linkedin.com/in/aessam/',
+    twitter: 'https://twitter.com/ahmd3ssam',
+    applePodcasts: 'https://podcasts.apple.com/us/podcast/id1519535081',
     spotify: '',
   },
 

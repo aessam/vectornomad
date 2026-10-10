@@ -20,3 +20,8 @@ Consequences: Amiri needs larger size and looser leading than a sans (20px body,
 ## 2026-10-10 FND-1: iframes are not an option for Medium and LinkedIn articles
 Evidence: medium.com sends `x-frame-options: SAMEORIGIN`; linkedin.com sends `frame-ancestors 'self'`. Only `linkedin.com/embed/feed/update/` allows any origin.
 Decision: Medium and LinkedIn articles render as preview cards. Podcast uses native `<audio>` on the RSS enclosure. YouTube uses a thumbnail facade that swaps to `youtube-nocookie.com` on click.
+
+## 2026-10-10 DSCN-4: قهوة عصام brand palette and logo on the site
+Context: brand files from the 2020 identity (Madar Studio): navy #184377, teal #16B9A7, coral #F06263, white, with shade and tint ramps in Color Palette.pdf.
+Decision: navy is the text accent and button color (9:1 on white). Teal and coral are reserved for non-text UI: play buttons, badges. Dark mode uses the navy shade #0C1524 as ground and the teal tint #5CC2B4 as accent. Square logo SVG in the header and as favicon.
+Consequences: `brand/` source files stay out of git (gitignored); only `public/brand/logo.svg` and `public/favicon.svg` ship. Fonts unchanged (Amiri, Crimson Pro); the brand's display serif is close enough to Crimson Pro.

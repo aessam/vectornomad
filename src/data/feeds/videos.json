@@ -1,5 +1,137 @@
 [
-  { "id": "placeholder-v3", "title": "[Placeholder] Video 3, replaced by npm run fetch", "url": "https://www.youtube.com/watch?v=placeholder3", "date": "2026-10-07T12:00:00.000Z", "videoId": "placeholder3" },
-  { "id": "placeholder-v2", "title": "[Placeholder] Video 2", "url": "https://www.youtube.com/watch?v=placeholder2", "date": "2026-09-28T12:00:00.000Z", "videoId": "placeholder2" },
-  { "id": "placeholder-v1", "title": "[Placeholder] Video 1", "url": "https://www.youtube.com/watch?v=placeholder1", "date": "2026-09-20T12:00:00.000Z", "videoId": "placeholder1" }
+  {
+    "id": "l89UqDyeqyM",
+    "title": "القصة من الاول، كلام عن الـتوكينيزر و اللغة العربية  مع دكتور خالد الشمعة",
+    "url": "https://www.youtube.com/watch?v=l89UqDyeqyM",
+    "date": "2026-08-30T05:55:20.000Z",
+    "videoId": "l89UqDyeqyM",
+    "thumbnail": "https://i1.ytimg.com/vi/l89UqDyeqyM/hqdefault.jpg",
+    "description": "A conversation about tokenizer and Arabic"
+  },
+  {
+    "id": "xlALvHjVEt0",
+    "title": "ما وراء الـ Prompt",
+    "url": "https://www.youtube.com/watch?v=xlALvHjVEt0",
+    "date": "2026-06-21T08:43:11.000Z",
+    "videoId": "xlALvHjVEt0",
+    "thumbnail": "https://i1.ytimg.com/vi/xlALvHjVEt0/hqdefault.jpg",
+    "description": "الغرض من هذه المحاضرة هو كيفية بناء تطبيقات فيها خصائص ذكاء اصطناعي وليس كيفية استخدام نماذج الذكاء الاصطناعي في بناء الأنظمة"
+  },
+  {
+    "id": "0rcW213kvgM",
+    "title": "Back to LLM school: Episode 2",
+    "url": "https://www.youtube.com/watch?v=0rcW213kvgM",
+    "date": "2026-06-11T16:31:28.000Z",
+    "videoId": "0rcW213kvgM",
+    "thumbnail": "https://i1.ytimg.com/vi/0rcW213kvgM/hqdefault.jpg",
+    "description": "Repo link https://github.com/barmag/fanous-llm-lens\n\na Journey to study and understand LLM as deep as we can\n\nMe and Yasser Makram will dig deep in the LLM, also we will explain the work went into training my LLM"
+  },
+  {
+    "id": "AiTsOftpyNM",
+    "title": "علمني الـراست يا سي أحمد",
+    "url": "https://www.youtube.com/watch?v=AiTsOftpyNM",
+    "date": "2026-06-08T10:05:32.000Z",
+    "videoId": "AiTsOftpyNM",
+    "thumbnail": "https://i2.ytimg.com/vi/AiTsOftpyNM/hqdefault.jpg",
+    "description": "أحمد من اكتر الناس الي بتشتغل في الـSystem programing and tools بشكل كبير و بيكون في مشاريع كبير \nأحمد تطوع انه يعلمني راست \n\nأحمد سليمان https://www.linkedin.com/in/ahmedsolimanfarghal/"
+  },
+  {
+    "id": "nhVcPVyC-7A",
+    "title": "إزاي تبقى رئيس مجلس إدارة الـ AI Agents؟ مع أحمد عبد العليم  و  ApexYard",
+    "url": "https://www.youtube.com/watch?v=nhVcPVyC-7A",
+    "date": "2026-05-17T09:43:14.000Z",
+    "videoId": "nhVcPVyC-7A",
+    "thumbnail": "https://i3.ytimg.com/vi/nhVcPVyC-7A/hqdefault.jpg",
+    "description": "في الحلقة دي بنستضيف أحمد عبد العليم، مؤلف مشروع ApexYard، ونتكلم عن فكرة مختلفة: بدل ما تستخدم الـ AI Agents كأدوات منفصلة بترد عليك وقت الطلب، إزاي تبني لهم نظام شغل واضح وتبقى أنت كأنك “رئيس مجلس إدارة” بيوجههم، يحدد…"
+  },
+  {
+    "id": "rI03dRdBpco",
+    "title": "Back to LLM school: Episode 1",
+    "url": "https://www.youtube.com/watch?v=rI03dRdBpco",
+    "date": "2026-05-15T17:25:27.000Z",
+    "videoId": "rI03dRdBpco",
+    "thumbnail": "https://i3.ytimg.com/vi/rI03dRdBpco/hqdefault.jpg",
+    "description": "Repo link https://github.com/barmag/fanous-llm-lens\n\na Journey to study and understand LLM as deep as we can\n\nMe and Yasser Makram will dig deep in the LLM, also we will explain the work went into training my LLM"
+  },
+  {
+    "id": "TK0DDisw2z4",
+    "title": "مراجعة كتاب محمد الجيش  Shipping Machine Learning Systems",
+    "url": "https://www.youtube.com/watch?v=TK0DDisw2z4",
+    "date": "2026-04-25T12:41:36.000Z",
+    "videoId": "TK0DDisw2z4",
+    "thumbnail": "https://i1.ytimg.com/vi/TK0DDisw2z4/hqdefault.jpg",
+    "description": "https://www.amazon.com/Shipping-Machine-Learning-Systems-Production-ebook\n\n# وصف الحلقة — عصام كافيه × محمد الجيش\n\n---\n\n## 🎙️ العنوان المقترح\n**شحن أنظمة الـ Machine Learning للإنتاج | محمد الجيش × أحمد عصام**\n*(How to…"
+  },
+  {
+    "id": "LDA5ALZUVqc",
+    "title": "الواد البراوي: مستقبل العمل في وجود الذكاء الصناعي",
+    "url": "https://www.youtube.com/watch?v=LDA5ALZUVqc",
+    "date": "2026-01-20T07:50:05.000Z",
+    "videoId": "LDA5ALZUVqc",
+    "thumbnail": "https://i1.ytimg.com/vi/LDA5ALZUVqc/hqdefault.jpg",
+    "description": "كنت حابب اتكلم عن التغيير الي حاصل في سوق العمل و المشاكل الموجودة حالياً بسبب التنافس العالي و قلة الفرص"
+  },
+  {
+    "id": "hFxfaAQn7Ys",
+    "title": "اتدفعلي بالموز والتفاح",
+    "url": "https://www.youtube.com/watch?v=hFxfaAQn7Ys",
+    "date": "2026-01-20T00:07:09.000Z",
+    "videoId": "hFxfaAQn7Ys",
+    "thumbnail": "https://i1.ytimg.com/vi/hFxfaAQn7Ys/hqdefault.jpg",
+    "description": "قصة عن حل مشاكل الناس حواليك"
+  },
+  {
+    "id": "rCIkjsykKx8",
+    "title": "بعمل ديبريف مع كلود",
+    "url": "https://www.youtube.com/watch?v=rCIkjsykKx8",
+    "date": "2026-01-20T00:06:37.000Z",
+    "videoId": "rCIkjsykKx8",
+    "thumbnail": "https://i3.ytimg.com/vi/rCIkjsykKx8/hqdefault.jpg",
+    "description": "بعد كل ميتينج بلخص مع الـ AI"
+  },
+  {
+    "id": "qSf7V2BQvCo",
+    "title": "البنية التحتية مش جاهزة",
+    "url": "https://www.youtube.com/watch?v=qSf7V2BQvCo",
+    "date": "2026-01-20T00:06:02.000Z",
+    "videoId": "qSf7V2BQvCo",
+    "thumbnail": "https://i2.ytimg.com/vi/qSf7V2BQvCo/hqdefault.jpg",
+    "description": "زي عربية بتروح ٦٠ ميل في ثانية"
+  },
+  {
+    "id": "sdqXuYOpayw",
+    "title": "التأقلم مش سكيل",
+    "url": "https://www.youtube.com/watch?v=sdqXuYOpayw",
+    "date": "2026-01-20T00:05:29.000Z",
+    "videoId": "sdqXuYOpayw",
+    "thumbnail": "https://i4.ytimg.com/vi/sdqXuYOpayw/hqdefault.jpg",
+    "description": "دي حاجة في الكاراكتر"
+  },
+  {
+    "id": "SK2UjMc9FPo",
+    "title": "٣٠٠ طلب في ٥ دقايق",
+    "url": "https://www.youtube.com/watch?v=SK2UjMc9FPo",
+    "date": "2026-01-20T00:04:52.000Z",
+    "videoId": "SK2UjMc9FPo",
+    "thumbnail": "https://i4.ytimg.com/vi/SK2UjMc9FPo/hqdefault.jpg",
+    "description": "المنافسة بقت صعبة جداً"
+  },
+  {
+    "id": "nwmRgjbj3KQ",
+    "title": "اتدفعلي بالموز والتفاح",
+    "url": "https://www.youtube.com/watch?v=nwmRgjbj3KQ",
+    "date": "2026-01-20T00:04:06.000Z",
+    "videoId": "nwmRgjbj3KQ",
+    "thumbnail": "https://i3.ytimg.com/vi/nwmRgjbj3KQ/hqdefault.jpg",
+    "description": "قصة عن حل مشاكل الناس حواليك"
+  },
+  {
+    "id": "Gm7h-ZNutUo",
+    "title": "محتاج تعرف كل حاجة",
+    "url": "https://www.youtube.com/watch?v=Gm7h-ZNutUo",
+    "date": "2026-01-20T00:03:33.000Z",
+    "videoId": "Gm7h-ZNutUo",
+    "thumbnail": "https://i4.ytimg.com/vi/Gm7h-ZNutUo/hqdefault.jpg",
+    "description": "ديزاين وبرودكت وسوفتوير"
+  }
 ]

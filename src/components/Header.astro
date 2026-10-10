@@ -16,7 +16,10 @@ const active = (to: string) => path.startsWith(href(to));
 
 <header>
   <div class="wrap bar">
-    <a href={href('/')} class="brand">{site.name}</a>
+    <a href={href('/')} class="brand">
+      <img src={href('/brand/logo.svg')} alt="" width="44" height="44" class="mark" />
+      <span>{site.name}</span>
+    </a>
     <nav aria-label="Primary">
       {items.map((i) => (
         <a href={href(i.to)} lang={i.lang} aria-current={active(i.to) ? 'page' : undefined}>{i.label}</a>
@@ -28,7 +31,8 @@ const active = (to: string) => path.startsWith(href(to));
 <style>
   header { border-bottom: 1px solid var(--line); }
   .bar { padding-top: 20px; padding-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; }
-  .brand { font-weight: 700; font-size: 22px; text-decoration: none; }
+  .brand { font-weight: 700; font-size: 22px; text-decoration: none; display: inline-flex; align-items: center; gap: 12px; }
+  .mark { width: 44px; height: 44px; }
   nav { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 17px; margin-inline-start: auto; }
   nav a { text-decoration: none; padding: 8px 0; min-height: 44px; display: inline-flex; align-items: center; }
   nav a[aria-current='page'] { color: var(--accent); font-weight: 600; }
