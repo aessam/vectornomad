@@ -71,8 +71,11 @@ const iso = (d, name) => {
 const slug = (s) => str(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
 
 function episodes(doc) {
-  const items = doc?.rss?.channel?.item;
+  const channel = doc?.rss?.channel;
+  const items = channel?.item;
   if (!items?.length) throw new Error('podcast: no <item> in feed');
+  // Most episodes carry no artwork of their own. Fall back to the show artwork.
+  const showImage = channel['itunes:image']?.['@_href'] || channel.image?.url || undefined;
   return items.slice(0, KEEP).map((it) => {
     const audio = it.enclosure?.['@_url'];
     if (!audio) throw new Error(`podcast: episode "${str(it.title)}" has no enclosure`);
@@ -84,7 +87,7 @@ function episodes(doc) {
       date: iso(str(it.pubDate), 'podcast'),
       audio,
       duration: duration || undefined,
-      image: it['itunes:image']?.['@_href'] || it['media:thumbnail']?.['@_url'] || undefined,
+      image: it['itunes:image']?.['@_href'] || it['media:thumbnail']?.['@_url'] || showImage,
       summary: excerpt(stripHtml(it['itunes:summary'] || it.description || '')),
     };
   });

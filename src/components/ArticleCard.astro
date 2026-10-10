@@ -17,9 +17,10 @@ const d = entry.data;
 
 <style>
   .art { display: flex; gap: 20px; align-items: flex-start; }
-  .cover { flex: 0 0 200px; aspect-ratio: 4 / 3; border-radius: 10px; object-fit: cover; }
+  /* Explicit width: a replaced element in a flex row keeps its natural width otherwise (min-width: auto). */
+  .cover { flex: 0 0 200px; width: 200px; height: auto; aspect-ratio: 4 / 3; border-radius: 10px; object-fit: cover; }
   .ph { background: var(--line); }
-  .compact .cover { flex-basis: 96px; aspect-ratio: 1; border-radius: 8px; }
+  .compact .cover { flex-basis: 96px; width: 96px; aspect-ratio: 1; border-radius: 8px; }
   .body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
   .compact .card-title { font-size: 17px; }
   .compact p { font-size: 15px; }
