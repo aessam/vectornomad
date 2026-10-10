@@ -1,0 +1,23 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { fmtDate } from '../lib/format';
+import { host, href } from '../lib/url';
+interface Props { entry: CollectionEntry<'links'> }
+const { entry } = Astro.props;
+const d = entry.data;
+const label = d.source ?? host(d.url);
+---
+
+<article class="card lk">
+  {d.image && <img src={d.image.startsWith('/') ? href(d.image) : d.image} alt="" loading="lazy" class="img" />}
+  <div class="meta">{d.kind === 'mine' ? 'PICK' : 'LINK I LIKE'} · {label} · {fmtDate(d.date)}</div>
+  <h3 class="card-title"><a href={d.url}>{d.title}</a></h3>
+  {d.note && <p class="muted">{d.note}</p>}
+</article>
+
+<style>
+  .lk { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px; }
+  .img { border-radius: 8px; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 6px; }
+  .card-title { font-size: 17px; }
+  p { margin: 0; font-size: 15px; line-height: 1.5; }
+</style>

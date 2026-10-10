@@ -1,0 +1,10 @@
+---
+import { href } from '../lib/url';
+interface Props { title: string; to?: string; linkText?: string; lang?: string }
+const { title, to, linkText, lang } = Astro.props;
+---
+
+<div class="section-head" lang={lang}>
+  <h2>{title}</h2>
+  {to && linkText && <a href={href(to)}>{linkText}</a>}
+</div>

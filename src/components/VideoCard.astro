@@ -1,0 +1,57 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { fmtDate } from '../lib/format';
+interface Props { entry: CollectionEntry<'videos'> }
+const { entry } = Astro.props;
+const d = entry.data;
+const bg = d.thumbnail ? `background-image:url(${d.thumbnail})` : undefined;
+---
+
+<article class="video">
+  <button type="button" class="yt-facade" data-video-id={d.videoId} aria-label={`Play: ${d.title}`} style={bg}>
+    <span class="play" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="28" height="28"><path d="M8 5v14l11-7z" fill="currentColor"></path></svg>
+    </span>
+  </button>
+  <h3 class="card-title"><a href={d.url}>{d.title}</a></h3>
+  <div class="meta">{fmtDate(d.date)}</div>
+</article>
+
+<script>
+  // Facade: thumbnail only until clicked, then the real player. Keeps the page light and cookie-free.
+  document.querySelectorAll<HTMLButtonElement>('.yt-facade').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.videoId;
+      if (!id) return;
+      const frame = document.createElement('iframe');
+      frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+      frame.title = btn.getAttribute('aria-label') ?? 'Video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      frame.allowFullscreen = true;
+      frame.className = 'yt-frame';
+      btn.replaceWith(frame);
+    });
+  });
+</script>
+
+<style>
+  .video { display: flex; flex-direction: column; gap: 10px; }
+  .yt-facade, :global(.yt-frame) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+    border-radius: 10px;
+    background: var(--dark) center / cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+  }
+  .play {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-title { font-size: 17px; }
+</style>

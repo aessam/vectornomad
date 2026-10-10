@@ -1,0 +1,33 @@
+---
+import Layout from '../layouts/Layout.astro';
+import EpisodeCard from '../components/EpisodeCard.astro';
+import { episodes } from '../lib/content';
+import { site } from '../../site.config.mjs';
+const eps = await episodes();
+const subs = [
+  ['Apple Podcasts', site.social.applePodcasts],
+  ['Spotify', site.social.spotify],
+  ['RSS', site.feeds.podcast],
+].filter(([, u]) => u);
+---
+
+<Layout title="Podcast">
+  <div class="head">
+    <h1>Podcast</h1>
+    {subs.length > 0 && (
+      <div class="subs">
+        {subs.map(([label, url]) => <a href={url} class="btn-ghost">{label}</a>)}
+      </div>
+    )}
+  </div>
+  <div class="list">
+    {eps.map((e, i) => <EpisodeCard entry={e} featured={i === 0} />)}
+  </div>
+</Layout>
+
+<style>
+  h1 { font-size: 40px; }
+  .head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+  .subs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .list { max-width: 760px; display: flex; flex-direction: column; gap: 20px; }
+</style>

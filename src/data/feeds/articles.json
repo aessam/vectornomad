@@ -1,0 +1,4 @@
+[
+  { "id": "placeholder-a2", "title": "[Placeholder] Article 2, replaced by npm run fetch", "url": "https://medium.com/@placeholder/2", "date": "2026-10-04T10:00:00.000Z", "excerpt": "First sentences of the article, pulled from the Medium RSS feed and trimmed at a word boundary." },
+  { "id": "placeholder-a1", "title": "[Placeholder] Article 1", "url": "https://medium.com/@placeholder/1", "date": "2026-09-18T10:00:00.000Z", "excerpt": "First sentences of the article." }
+]

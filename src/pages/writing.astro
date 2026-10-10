@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { articles } from '../lib/content';
+import { site } from '../../site.config.mjs';
+const arts = await articles();
+---
+
+<Layout title="Writing">
+  <div class="head">
+    <h1>Writing</h1>
+    {site.social.medium && <a href={site.social.medium} class="btn-ghost">On Medium</a>}
+  </div>
+  <div class="list">
+    {arts.map((a) => <ArticleCard entry={a} />)}
+  </div>
+</Layout>
+
+<style>
+  h1 { font-size: 40px; }
+  .head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+  .list { max-width: 860px; display: flex; flex-direction: column; gap: 20px; }
+</style>

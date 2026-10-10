@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LinkCard from '../components/LinkCard.astro';
+import { links } from '../lib/content';
+const all = await links();
+---
+
+<Layout title="Links" description="Things I liked, and my own posts worth keeping.">
+  <h1>Links</h1>
+  <div class="grid-3">
+    {all.map((l) => <LinkCard entry={l} />)}
+  </div>
+</Layout>
+
+<style>
+  h1 { font-size: 40px; }
+</style>

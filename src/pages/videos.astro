@@ -1,0 +1,22 @@
+---
+import Layout from '../layouts/Layout.astro';
+import VideoCard from '../components/VideoCard.astro';
+import { videos } from '../lib/content';
+import { site } from '../../site.config.mjs';
+const vids = await videos();
+---
+
+<Layout title="Videos">
+  <div class="head">
+    <h1>Videos</h1>
+    {site.social.youtube && <a href={site.social.youtube} class="btn-ghost">YouTube channel</a>}
+  </div>
+  <div class="grid-3">
+    {vids.map((v) => <VideoCard entry={v} />)}
+  </div>
+</Layout>
+
+<style>
+  h1 { font-size: 40px; }
+  .head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+</style>

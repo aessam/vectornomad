@@ -1,0 +1,65 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SectionHead from '../components/SectionHead.astro';
+import EpisodeCard from '../components/EpisodeCard.astro';
+import VideoCard from '../components/VideoCard.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import ArabicCard from '../components/ArabicCard.astro';
+import LinkCard from '../components/LinkCard.astro';
+import { episodes, videos, articles, arabic, links } from '../lib/content';
+import { href } from '../lib/url';
+import { site } from '../../site.config.mjs';
+
+const n = site.hub;
+const [eps, vids, arts, ars, lks] = await Promise.all([episodes(), videos(), articles(), arabic(), links()]);
+const latest = eps[0];
+---
+
+<Layout title="Home">
+  <section class="hero">
+    <div class="intro">
+      <h1>{site.tagline}</h1>
+      <p class="muted">{site.intro}</p>
+      <div class="actions">
+        <a href={href('/podcast')} class="btn">Latest episode</a>
+        <a href={href('/stream')} class="btn-ghost">Full stream</a>
+      </div>
+    </div>
+    {latest && <EpisodeCard entry={latest} featured />}
+  </section>
+
+  <section class="stack">
+    <SectionHead title="Videos" to="/videos" linkText="All videos" />
+    <div class="grid-3">
+      {vids.slice(0, n.videos).map((v) => <VideoCard entry={v} />)}
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="stack">
+      <SectionHead title="Writing" to="/writing" linkText="All articles" />
+      {arts.slice(0, n.articles).map((a) => <ArticleCard entry={a} compact />)}
+    </div>
+    <div class="stack" lang="ar" dir="rtl">
+      <SectionHead title="بالعربي" to="/ar" linkText="كل المقالات" lang="ar" />
+      {ars.slice(0, n.arabic).map((p, i) => <ArabicCard entry={p} featured={i === 0} />)}
+    </div>
+  </section>
+
+  <section class="stack">
+    <SectionHead title="Links I like" to="/links" linkText="All links" />
+    <div class="grid-3">
+      {lks.slice(0, n.links).map((l) => <LinkCard entry={l} />)}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero { display: flex; flex-wrap: wrap; gap: 40px; align-items: stretch; }
+  .intro { flex: 1 1 380px; display: flex; flex-direction: column; gap: 16px; justify-content: center; }
+  .hero :global(.soft) { flex: 1 1 440px; }
+  h1 { font-size: 46px; letter-spacing: -0.02em; }
+  .intro p { margin: 0; font-size: 20px; max-width: 520px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  @media (max-width: 560px) { h1 { font-size: 34px; } }
+</style>

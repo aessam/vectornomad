@@ -1,0 +1,19 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { fmtDate, fmtDuration } from '../lib/format';
+interface Props { entry: CollectionEntry<'episodes'>; featured?: boolean }
+const { entry, featured = false } = Astro.props;
+const d = entry.data;
+const dur = fmtDuration(d.duration);
+---
+
+<article class:list={[featured ? 'soft' : 'card', 'ep']}>
+  <div class="meta">{featured ? 'LATEST EPISODE' : 'PODCAST'} · {fmtDate(d.date)}{dur && ` · ${dur}`}</div>
+  <h3 class="card-title"><a href={d.url}>{d.title}</a></h3>
+  {featured && d.summary && <p class="muted" style="margin: 0">{d.summary}</p>}
+  <audio controls preload="none" src={d.audio}></audio>
+</article>
+
+<style>
+  .ep { display: flex; flex-direction: column; gap: 12px; }
+</style>

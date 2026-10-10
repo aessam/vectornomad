@@ -1,0 +1,104 @@
+:root {
+  --bg: #ffffff;
+  --ink: #15151a;
+  --muted: #4a4a52;
+  --meta: #5c5c66;
+  --line: #e4e2da;
+  --soft: #f2f1ec;
+  --accent: #1f5f8b;
+  --dark: #2a2a33;
+  --card: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15151a;
+    --ink: #f2f1ec;
+    --muted: #c4c4cc;
+    --meta: #a9a9b3;
+    --line: #2e2e38;
+    --soft: #1f1f27;
+    --accent: #6fb1e0;
+    --dark: #0d0d11;
+    --card: #1a1a21;
+  }
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-crimson);
+  font-size: 18px;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+a { color: inherit; }
+a:hover { color: var(--accent); }
+img { max-width: 100%; height: auto; display: block; }
+h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+
+/* Arabic: Amiri is a book face. Bigger, looser, no letter-spacing. */
+:lang(ar) { font-family: var(--font-amiri); line-height: 1.9; letter-spacing: 0; }
+:lang(ar) h1, :lang(ar) h2, :lang(ar) h3 { line-height: 1.5; letter-spacing: 0; }
+:lang(ar) p { font-size: 1.05em; }
+
+.wrap { max-width: 1232px; width: 100%; margin: 0 auto; padding: 0 24px; box-sizing: border-box; }
+.meta {
+  font-family: var(--font-plex-mono);
+  font-size: 12px;
+  color: var(--meta);
+  letter-spacing: 0.02em;
+}
+.muted { color: var(--muted); }
+
+.btn, .btn-ghost {
+  min-height: 44px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+}
+.btn { background: var(--ink); color: var(--bg); }
+.btn:hover { color: var(--bg); opacity: 0.85; }
+.btn-ghost { border: 1px solid var(--line); }
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+}
+.section-head h2 { font-size: 24px; }
+.section-head a { font-size: 15px; font-weight: 600; color: var(--accent); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+.soft { background: var(--soft); border-radius: 16px; padding: 28px; }
+.card-title { font-size: 20px; font-weight: 600; line-height: 1.3; }
+.card-title a { text-decoration: none; }
+.card-title a:hover { text-decoration: underline; }
+
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; }
+.stack { display: flex; flex-direction: column; gap: 20px; }
+.stack-lg { display: flex; flex-direction: column; gap: 56px; }
+
+@media (max-width: 900px) {
+  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .grid-3 { grid-template-columns: 1fr; }
+  html { font-size: 17px; }
+}
+
+audio { width: 100%; margin-top: 4px; }

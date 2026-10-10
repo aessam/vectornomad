@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ArabicCard from '../../components/ArabicCard.astro';
+import { arabic } from '../../lib/content';
+const posts = await arabic();
+---
+
+<Layout title="بالعربي" lang="ar" description="مقالات بالعربي، تُكتب هنا أولاً.">
+  <h1>بالعربي</h1>
+  <div class="list">
+    {posts.map((p) => <div class="card"><ArabicCard entry={p} featured /></div>)}
+  </div>
+</Layout>
+
+<style>
+  h1 { font-size: 44px; }
+  .list { max-width: 760px; display: flex; flex-direction: column; gap: 20px; }
+  .list :global(.soft) { background: transparent; padding: 0; }
+</style>

@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro';
+import EpisodeCard from '../components/EpisodeCard.astro';
+import VideoCard from '../components/VideoCard.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import ArabicCard from '../components/ArabicCard.astro';
+import LinkCard from '../components/LinkCard.astro';
+import { stream } from '../lib/content';
+const items = await stream();
+---
+
+<Layout title="Stream" description="Everything, newest first.">
+  <h1>Everything, in order.</h1>
+  <div class="list">
+    {items.map((it) => {
+      if (it.kind === 'episode') return <EpisodeCard entry={it.entry} />;
+      if (it.kind === 'video') return <div class="card"><VideoCard entry={it.entry} /></div>;
+      if (it.kind === 'article') return <ArticleCard entry={it.entry} />;
+      if (it.kind === 'ar') return <div class="card"><ArabicCard entry={it.entry} featured /></div>;
+      return <LinkCard entry={it.entry} />;
+    })}
+  </div>
+</Layout>
+
+<style>
+  h1 { font-size: 40px; }
+  .list { max-width: 760px; display: flex; flex-direction: column; gap: 20px; }
+  .list :global(.soft) { background: transparent; padding: 0; }
+</style>

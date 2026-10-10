@@ -1,0 +1,19 @@
+[
+  {
+    "id": "placeholder-ep-2",
+    "title": "[Placeholder] Episode 2: replaced by npm run fetch",
+    "url": "https://example.com/podcast/2",
+    "date": "2026-10-09T08:00:00.000Z",
+    "audio": "https://example.com/podcast/2.mp3",
+    "duration": "48:02",
+    "summary": "This card comes from src/data/feeds/episodes.json. CI overwrites it from your podcast RSS on every build."
+  },
+  {
+    "id": "placeholder-ep-1",
+    "title": "[Placeholder] Episode 1",
+    "url": "https://example.com/podcast/1",
+    "date": "2026-09-25T08:00:00.000Z",
+    "audio": "https://example.com/podcast/1.mp3",
+    "duration": "3120"
+  }
+]

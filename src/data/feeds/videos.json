@@ -1,0 +1,5 @@
+[
+  { "id": "placeholder-v3", "title": "[Placeholder] Video 3, replaced by npm run fetch", "url": "https://www.youtube.com/watch?v=placeholder3", "date": "2026-10-07T12:00:00.000Z", "videoId": "placeholder3" },
+  { "id": "placeholder-v2", "title": "[Placeholder] Video 2", "url": "https://www.youtube.com/watch?v=placeholder2", "date": "2026-09-28T12:00:00.000Z", "videoId": "placeholder2" },
+  { "id": "placeholder-v1", "title": "[Placeholder] Video 1", "url": "https://www.youtube.com/watch?v=placeholder1", "date": "2026-09-20T12:00:00.000Z", "videoId": "placeholder1" }
+]

@@ -1,0 +1,31 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { fmtDate } from '../lib/format';
+interface Props { entry: CollectionEntry<'articles'>; compact?: boolean }
+const { entry, compact = false } = Astro.props;
+const d = entry.data;
+---
+
+<article class:list={['art', { compact, card: !compact }]}>
+  {d.image ? <img src={d.image} alt="" loading="lazy" class="cover" /> : <div class="cover ph" aria-hidden="true"></div>}
+  <div class="body">
+    <h3 class="card-title"><a href={d.url}>{d.title}</a></h3>
+    {d.excerpt && <p class="muted">{d.excerpt}</p>}
+    <div class="meta">{fmtDate(d.date)} · Medium</div>
+  </div>
+</article>
+
+<style>
+  .art { display: flex; gap: 20px; align-items: flex-start; }
+  .cover { flex: 0 0 200px; aspect-ratio: 4 / 3; border-radius: 10px; object-fit: cover; }
+  .ph { background: var(--line); }
+  .compact .cover { flex-basis: 96px; aspect-ratio: 1; border-radius: 8px; }
+  .body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .compact .card-title { font-size: 17px; }
+  .compact p { font-size: 15px; }
+  p { margin: 0; line-height: 1.5; }
+  @media (max-width: 560px) {
+    .art:not(.compact) { flex-direction: column; }
+    .art:not(.compact) .cover { width: 100%; flex-basis: auto; }
+  }
+</style>

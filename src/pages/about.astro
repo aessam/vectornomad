@@ -1,0 +1,34 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { site } from '../../site.config.mjs';
+const social = [
+  ['YouTube', site.social.youtube],
+  ['Medium', site.social.medium],
+  ['LinkedIn', site.social.linkedin],
+  ['Twitter', site.social.twitter],
+  ['Apple Podcasts', site.social.applePodcasts],
+  ['Spotify', site.social.spotify],
+].filter(([, u]) => u);
+---
+
+<Layout title="About">
+  <article class="about">
+    <h1>About</h1>
+    <p>[Two or three sentences about you. This is the only page you write by hand in English.]</p>
+    {social.length > 0 ? (
+      <ul class="social">
+        {social.map(([label, url]) => <li><a href={url}>{label}</a></li>)}
+      </ul>
+    ) : (
+      <p class="muted">Fill <code>social</code> in site.config.mjs to list your profiles here.</p>
+    )}
+  </article>
+</Layout>
+
+<style>
+  .about { max-width: 720px; display: flex; flex-direction: column; gap: 20px; font-size: 20px; }
+  h1 { font-size: 40px; }
+  p { margin: 0; }
+  .social { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .social a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; font-size: 16px; }
+</style>
