@@ -7,9 +7,13 @@ const all = await links();
 
 <Layout title="Links" description="Things I liked, and my own posts worth keeping.">
   <h1>Links</h1>
-  <div class="grid-3">
-    {all.map((l) => <LinkCard entry={l} />)}
-  </div>
+  {all.length > 0 ? (
+    <div class="grid-3">
+      {all.map((l) => <LinkCard entry={l} />)}
+    </div>
+  ) : (
+    <p class="muted">Nothing here yet.</p>
+  )}
 </Layout>
 
 <style>

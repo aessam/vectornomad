@@ -7,9 +7,13 @@ const posts = await arabic();
 
 <Layout title="بالعربي" lang="ar" description="مقالات بالعربي، تُكتب هنا أولاً.">
   <h1>بالعربي</h1>
-  <div class="list">
-    {posts.map((p) => <ArabicCard entry={p} featured />)}
-  </div>
+  {posts.length > 0 ? (
+    <div class="list">
+      {posts.map((p) => <ArabicCard entry={p} featured />)}
+    </div>
+  ) : (
+    <p class="muted">لا توجد مقالات بعد.</p>
+  )}
 </Layout>
 
 <style>

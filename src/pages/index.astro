@@ -28,30 +28,40 @@ const latest = eps[0];
     {latest && <EpisodeCard entry={latest} featured />}
   </section>
 
-  <section class="stack">
-    <SectionHead title="Videos" to="/videos" linkText="All videos" />
-    <div class="grid-3">
-      {vids.slice(0, n.videos).map((v) => <VideoCard entry={v} />)}
-    </div>
-  </section>
+  {vids.length > 0 && (
+    <section class="stack">
+      <SectionHead title="Videos" to="/videos" linkText="All videos" />
+      <div class="grid-3">
+        {vids.slice(0, n.videos).map((v) => <VideoCard entry={v} />)}
+      </div>
+    </section>
+  )}
 
-  <section class="grid-2">
-    <div class="stack">
-      <SectionHead title="Writing" to="/writing" linkText="All articles" />
-      {arts.slice(0, n.articles).map((a) => <ArticleCard entry={a} layout="row" />)}
-    </div>
-    <div class="stack" lang="ar" dir="rtl">
-      <SectionHead title="بالعربي" to="/ar" linkText="كل المقالات" lang="ar" />
-      {ars.slice(0, n.arabic).map((p, i) => <ArabicCard entry={p} featured={i === 0} />)}
-    </div>
-  </section>
+  {(arts.length > 0 || ars.length > 0) && (
+    <section class:list={ars.length > 0 && arts.length > 0 ? 'grid-2' : 'stack'}>
+      {arts.length > 0 && (
+        <div class="stack">
+          <SectionHead title="Writing" to="/writing" linkText="All articles" />
+          {arts.slice(0, n.articles).map((a) => <ArticleCard entry={a} layout="row" />)}
+        </div>
+      )}
+      {ars.length > 0 && (
+        <div class="stack" lang="ar" dir="rtl">
+          <SectionHead title="بالعربي" to="/ar" linkText="كل المقالات" lang="ar" />
+          {ars.slice(0, n.arabic).map((p, i) => <ArabicCard entry={p} featured={i === 0} />)}
+        </div>
+      )}
+    </section>
+  )}
 
-  <section class="stack">
-    <SectionHead title="Links I like" to="/links" linkText="All links" />
-    <div class="grid-3">
-      {lks.slice(0, n.links).map((l) => <LinkCard entry={l} />)}
-    </div>
-  </section>
+  {lks.length > 0 && (
+    <section class="stack">
+      <SectionHead title="Links I like" to="/links" linkText="All links" />
+      <div class="grid-3">
+        {lks.slice(0, n.links).map((l) => <LinkCard entry={l} />)}
+      </div>
+    </section>
+  )}
 </Layout>
 
 <style>
