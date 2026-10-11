@@ -4,7 +4,7 @@ export const site = {
   // User page: https://USERNAME.github.io with base '/'.
   // Project page: https://USERNAME.github.io with base '/REPO'.
   // Custom domain: https://example.com with base '/' and a public/CNAME file.
-  url: 'https://USERNAME.github.io',
+  url: 'https://vectornomad.com',
   base: '/',
   name: 'Ahmed Essam',
   tagline: 'Engineering, culture, and coffee.',

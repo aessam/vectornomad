@@ -40,3 +40,8 @@ Consequences: strips are hidden under 560px to keep the hero readable. Backdrop 
 Context: the header and favicon used the podcast logo. The site is personal; the podcast is one section of it.
 Decision: `brand/AhmedEssamSeal.png` (hand-lettered أحمد عصام, ink on paper) is the site mark. Header uses a luminance mask of the ink (`public/brand/seal-mask.png`, 7 KB) painted in `currentColor`, so it is navy in light mode and white in dark mode with one file. Favicon and apple-touch-icon are the paper version, which reads as a stamp on any tab colour. The podcast logo SVG is removed from `public/`; the brand lives in the hero banner and the side strips.
 Consequences: regenerate with ImageMagick from the source PNG (`-alpha off -colorspace Gray -negate -level 35%,88%`); the source alpha channel must be dropped first or the mask comes out blank.
+
+## 2026-10-10 DSCN-8: Domain vectornomad.com
+Context: ahmed-essam.* stays with the old blog, essamcafe.com stays with the podcast. VectorNomad is the handle used elsewhere (Hugging Face) and the owner likes it.
+Decision: `site.url = https://vectornomad.com`, `base = /`, `public/CNAME` = vectornomad.com. DNS at Cloudflare: four A records to GitHub Pages (185.199.108.153, .109.153, .110.153, .111.153), proxy off so GitHub can issue the certificate; optional `www` CNAME to the github.io host with GitHub set to redirect it.
+Consequences: the domain is the address only; the identity stays the seal, the Arabic name and the podcast brand. Cloudflare proxy must stay off for the apex or GitHub's TLS provisioning fails.
