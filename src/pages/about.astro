@@ -2,33 +2,113 @@
 import Layout from '../layouts/Layout.astro';
 import { site } from '../../site.config.mjs';
 const social = [
+  ['Podcast', 'https://essamcafe.com'],
   ['YouTube', site.social.youtube],
   ['Medium', site.social.medium],
   ['LinkedIn', site.social.linkedin],
   ['Twitter', site.social.twitter],
-  ['Apple Podcasts', site.social.applePodcasts],
-  ['Spotify', site.social.spotify],
 ].filter(([, u]) => u);
 ---
 
-<Layout title="About">
+<Layout title="About" description="Ahmed Essam. Staff engineer at Apple, former founder, host of قهوة عصام. Twenty years of making software work, in Arabic too.">
   <article class="about">
-    <h1>About</h1>
-    <p>[Two or three sentences about you. This is the only page you write by hand in English.]</p>
-    {social.length > 0 ? (
+    <header class="top">
+      <p class="eyebrow">About</p>
+      <h1>I make software work. Then I make it work in Arabic.</h1>
+      <p class="lead">
+        Twenty-plus years of engineering, a company I founded, and a podcast with more than a hundred episodes.
+        Today I'm a Staff engineer at Apple, building the tooling that lets AI agents do real work on real codebases.
+      </p>
+    </header>
+
+    <section>
+      <h2>Now</h2>
+      <p>
+        I was part of the team that brought Claude into Apple engineering. Before an approved tool existed, I adapted an
+        open-source coding agent to Apple's policy and security requirements and got teams working with it. Since then I've
+        built an internal framework that lets designers and program managers turn a prompt into a working prototype, and
+        I spend a lot of my time on the unglamorous part of AI: evaluating what models actually produce.
+      </p>
+      <p>
+        On my own time I train small language models at home, past the fifth version now. I study how a one-word change in
+        a question changes a model's answer, and I build tools that turn a codebase into a graph so an agent can see side
+        effects, hot spots and test coverage before it touches anything.
+      </p>
+    </section>
+
+    <section>
+      <h2>Scale</h2>
+      <p>
+        At Apple I designed a distributed UI automation platform for international markets, covering many languages,
+        devices and account states. It replaced the work of roughly three hundred manual QA contractors, I hired and
+        onboarded the team that runs it, and it is still running. I also added framework-level right-to-left and
+        mixed-direction text support used across the App Store, Music, Podcasts and TV, and built Arabic search for the
+        App Store.
+      </p>
+      <p>
+        Before that, at Facebook, I owned crash reporting in the mobile SDKs that ran at startup for hundreds of millions of
+        iOS users, and built the tools that kept every team inside its binary size budget.
+      </p>
+    </section>
+
+    <section>
+      <h2>Founder years</h2>
+      <p>
+        In 2011 I founded F16Apps in Flat6Labs' first cohort. We built an on-device personalization engine, a compressed
+        knowledge graph plus a per-user graph, running entirely in memory on an iPhone 4 with no server round trip. It
+        shipped first in Neatly, a Twitter client whose Smart Timeline learned what you cared about. About seventy thousand
+        people used it across six platforms, and The Next Web, Adweek and Android Central wrote about it.
+      </p>
+    </section>
+
+    <section>
+      <h2>Arabic, since 2007</h2>
+      <p>
+        I'm a native Arabic speaker and I've been fixing Arabic in software for most of my career. In 2008, before Android
+        supported Arabic at all, I wrote and open-sourced the text-shaping core that shipped as Better Arabic Reshaper and
+        was later ported to Python. I contributed right-to-left work to Quran Android, built Arabic support for Windows
+        Mobile, and wrote a free Arabic book on ASP.NET. This site exists partly because no platform renders Arabic the way
+        it deserves.
+      </p>
+    </section>
+
+    <section>
+      <h2>قهوة عصام</h2>
+      <p>
+        Essam Cafe is my podcast. More than a hundred episodes, in Arabic, with people I might agree or disagree with.
+        Series on taking an idea to an MVP, on soft skills for engineers, and long conversations with guests who build
+        things. New episodes land on this site automatically.
+      </p>
+    </section>
+
+    <section lang="ar" dir="rtl" class="ar">
+      <h2>بالعربي</h2>
+      <p>
+        أنا أحمد. مهندس برمجيات منذ أكثر من عشرين سنة، أعمل في آبل، وأسّست شركة قبل ذلك، وأقدّم بودكاست قهوة عصام.
+        أهتم بأن يعمل البرنامج كما يجب، وبأن تُكتب العربية فيه كما تستحق. هذا الموقع يجمع ما أنشره في مكان واحد.
+      </p>
+    </section>
+
+    <section>
+      <h2>Elsewhere</h2>
       <ul class="social">
         {social.map(([label, url]) => <li><a href={url}>{label}</a></li>)}
       </ul>
-    ) : (
-      <p class="muted">Fill <code>social</code> in site.config.mjs to list your profiles here.</p>
-    )}
+    </section>
   </article>
 </Layout>
 
 <style>
-  .about { max-width: 720px; display: flex; flex-direction: column; gap: 20px; font-size: 20px; }
-  h1 { font-size: 40px; }
-  p { margin: 0; }
+  .about { max-width: 720px; display: flex; flex-direction: column; gap: 40px; }
+  .top { display: flex; flex-direction: column; gap: 16px; }
+  h1 { font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; }
+  .lead { margin: 0; font-size: 22px; line-height: 1.5; color: var(--muted); }
+  section { display: flex; flex-direction: column; gap: 12px; }
+  h2 { font-size: 24px; }
+  p { margin: 0; font-size: 19px; line-height: 1.6; }
+  .ar h2 { font-size: 30px; }
+  .ar p { font-size: 21px; line-height: 1.9; }
   .social { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-  .social a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; font-size: 16px; }
+  .social a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--line); background: var(--card); border-radius: 999px; text-decoration: none; font-size: 16px; }
+  @media (max-width: 560px) { h1 { font-size: 32px; } .lead { font-size: 19px; } p { font-size: 18px; } }
 </style>
