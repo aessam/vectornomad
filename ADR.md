@@ -35,3 +35,8 @@ Consequences: wrappers are a few lines each. Any new content type gets a tile fo
 Context: the square artwork was being cropped in tiles, losing the banner's side pattern; tiles read flat.
 Decision: `scripts/extract-side-pattern.mjs` pulls the side strips out of the 1280x720 banner SVG into `public/brand/side-left.svg` and `side-right.svg`. The hero is a navy banner with those strips at both edges, sized to the section so nothing tiles (the pattern is hand-drawn and not periodic). Episode artwork uses `object-fit: contain` on the brand navy, which is the artwork's own ground, so it is never cropped. Every tile is glass: translucent gradient, 24px backdrop blur, hairline edge and inner highlight, over a faint brand-colored mesh on the page ground.
 Consequences: strips are hidden under 560px to keep the hero readable. Backdrop blur is GPU work; 11 tiles on the hub is fine, a 50-item stream page is the thing to watch.
+
+## 2026-10-10 DSCN-7: Personal seal as site mark and favicon
+Context: the header and favicon used the podcast logo. The site is personal; the podcast is one section of it.
+Decision: `brand/AhmedEssamSeal.png` (hand-lettered أحمد عصام, ink on paper) is the site mark. Header uses a luminance mask of the ink (`public/brand/seal-mask.png`, 7 KB) painted in `currentColor`, so it is navy in light mode and white in dark mode with one file. Favicon and apple-touch-icon are the paper version, which reads as a stamp on any tab colour. The podcast logo SVG is removed from `public/`; the brand lives in the hero banner and the side strips.
+Consequences: regenerate with ImageMagick from the source PNG (`-alpha off -colorspace Gray -negate -level 35%,88%`); the source alpha channel must be dropped first or the mask comes out blank.
