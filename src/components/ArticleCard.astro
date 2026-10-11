@@ -2,12 +2,16 @@
 import type { CollectionEntry } from 'astro:content';
 import Card from './Card.astro';
 import { fmtDate, langOf } from '../lib/format';
+import { href } from '../lib/url';
 interface Props { entry: CollectionEntry<'articles'>; layout?: 'stack' | 'row' }
 const { entry, layout = 'stack' } = Astro.props;
 const d = entry.data;
+// Medium CDN URLs carry their size in the path; ask for a small one for the blurred backdrop.
+const small = (url: string) => url.replace(/\/max\/\d+\//, '/max/400/');
+const bg = d.image ? small(d.image) : href('/brand/banner-blur.jpg');
 ---
 
-<Card layout={layout} tone={d.image ? 'card' : 'tint'}>
+<Card layout={layout} bg={bg} class={d.image ? undefined : 'textonly'}>
   {d.image && <img slot="media" src={d.image} alt="" loading="lazy" style={layout === 'row' ? 'aspect-ratio: 1 / 1' : undefined} />}
   <Fragment slot="eyebrow">Medium · {fmtDate(d.date)}</Fragment>
   <h3 class="tile-title" lang={langOf(d.title)} dir="auto"><a href={d.url}>{d.title}</a></h3>

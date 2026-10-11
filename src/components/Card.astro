@@ -4,17 +4,20 @@
 interface Props {
   tone?: 'card' | 'tint';   // tint = text-only tile on a navy-tinted fill
   layout?: 'stack' | 'row'; // row = media on the inline-start side, fixed width
+  bg?: string;              // image blurred behind the whole tile, under a glass scrim
   lang?: string;
   dir?: 'ltr' | 'rtl' | 'auto';
   class?: string;
 }
-const { tone = 'card', layout = 'stack', lang, dir, class: cls } = Astro.props;
+const { tone = 'card', layout = 'stack', bg, lang, dir, class: cls } = Astro.props;
 const hasMedia = Astro.slots.has('media');
 const hasEyebrow = Astro.slots.has('eyebrow');
 const hasFooter = Astro.slots.has('footer');
 ---
 
-<article class:list={['tile', tone, layout, cls]} lang={lang} dir={dir}>
+<article class:list={['tile', tone, layout, { 'has-bg': !!bg }, cls]} lang={lang} dir={dir}>
+  {bg && <img class="tile-bg" src={bg} alt="" aria-hidden="true" loading="lazy" decoding="async" />}
+  {bg && <div class="tile-scrim" aria-hidden="true"></div>}
   {hasMedia && <div class="tile-media"><slot name="media" /></div>}
   <div class="tile-body">
     {hasEyebrow && <div class="eyebrow"><slot name="eyebrow" /></div>}

@@ -20,6 +20,8 @@
   --glass-tint: linear-gradient(150deg, rgba(232, 238, 246, 0.9), rgba(232, 238, 246, 0.6));
   --glass-edge: rgba(255, 255, 255, 0.75);
   --glass-highlight: rgba(255, 255, 255, 0.9);
+  --scrim: linear-gradient(160deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.5));
+  --bg-opacity: 0.9;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -39,6 +41,8 @@
     --glass-tint: linear-gradient(150deg, rgba(92, 194, 180, 0.16), rgba(92, 194, 180, 0.05));
     --glass-edge: rgba(255, 255, 255, 0.14);
     --glass-highlight: rgba(255, 255, 255, 0.18);
+    --scrim: linear-gradient(160deg, rgba(12, 21, 36, 0.55), rgba(12, 21, 36, 0.8));
+    --bg-opacity: 0.8;
   }
 }
 
@@ -110,6 +114,25 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.15; letter-spacing: -0.
 }
 .tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover), inset 0 1px 0 var(--glass-highlight); }
 .tile.tint { background: var(--glass-tint); }
+
+/* Blurred backdrop behind a tile: its own cover, or the brand banner when it has none. */
+.tile-bg {
+  position: absolute;
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  object-fit: cover;
+  filter: blur(28px) saturate(1.3);
+  opacity: var(--bg-opacity);
+  pointer-events: none;
+  z-index: 0;
+}
+.tile-scrim { position: absolute; inset: 0; background: var(--scrim); z-index: 0; pointer-events: none; }
+.tile-media, .tile-body { position: relative; z-index: 1; }
+.tile.textonly .tile-body { justify-content: center; padding: 28px 24px; }
+.tile.textonly .tile-title { font-size: 21px; }
+.tile.textonly .tile-sub { -webkit-line-clamp: 7; }
+.tile-sub { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
 .tile-media { flex: none; background: var(--line); }
 .tile-media > img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .tile-body { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 18px 20px 20px; min-width: 0; }
