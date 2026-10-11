@@ -16,9 +16,8 @@ const active = (to: string) => path.startsWith(href(to));
 
 <header dir="ltr" lang="en">
   <div class="wrap bar">
-    <a href={href('/')} class="brand">
+    <a href={href('/')} class="brand" aria-label={`${site.name}, home`}>
       <span class="mark" aria-hidden="true" style={`--seal:url(${href('/brand/seal-mask.png')})`}></span>
-      <span>{site.name}</span>
     </a>
     <nav aria-label="Primary">
       {items.map((i) => (
@@ -34,7 +33,7 @@ const active = (to: string) => path.startsWith(href(to));
   .brand { font-weight: 700; font-size: 22px; text-decoration: none; display: inline-flex; align-items: center; gap: 12px; }
   /* The seal is ink only, painted in the current text colour, so it flips with dark mode. */
   .mark {
-    width: 48px; height: 48px; flex: none;
+    width: 56px; height: 56px; flex: none;
     background: currentColor;
     -webkit-mask: var(--seal) center / contain no-repeat;
     mask: var(--seal) center / contain no-repeat;
