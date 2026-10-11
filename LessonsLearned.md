@@ -11,3 +11,6 @@ A `curl -I` on medium.com looked like a block. A GET with a browser user agent r
 
 ## 2026-10-10 Dates are formatted at build time in UTC
 `fmtDate` runs in the Actions runner, so a post published late evening local time can show the next calendar day. Acceptable for now; pass a fixed `timeZone` to `Intl.DateTimeFormat` if it bothers you.
+
+## 2026-10-11 YouTube feed endpoint returned 404 for every channel during the first deploy
+`youtube.com/feeds/videos.xml?channel_id=…` worked at 14:00 and returned 404 for all channels at 18:30, locally and from Actions, regardless of headers. The channel page still advertised the same feed URL. Resolution: the fetch script retries once with a browser user agent, then falls back to the committed JSON snapshot with a GitHub `::warning` annotation. It exits non-zero only when there is no snapshot. The committed feed JSON is the checkpoint.

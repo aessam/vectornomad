@@ -7,6 +7,7 @@
 // FEED_MEDIUM_URL. A value starting with "file:" is read from disk instead of fetched.
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { XMLParser } from 'fast-xml-parser';
 import { site } from '../site.config.mjs';
@@ -15,7 +16,8 @@ const args = process.argv.slice(2);
 const outIdx = args.indexOf('--out');
 const OUT_DIR = resolve(outIdx >= 0 ? args[outIdx + 1] : 'src/data/feeds');
 const KEEP = site.keep ?? 50;
-const UA = 'Mozilla/5.0 (compatible; MyWebsite feed fetcher; +https://github.com)';
+const UA = 'Mozilla/5.0 (compatible; MyWebsite feed fetcher; +https://github.com/aessam/vectornomad)';
+const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 
 const f = site.feeds;
 const urls = {
@@ -42,7 +44,13 @@ async function load(name, url) {
   if (url.startsWith('file:')) {
     text = await readFile(url.slice(5), 'utf8');
   } else {
-    const res = await fetch(url, { headers: { 'user-agent': UA, accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml' } });
+    const accept = 'application/rss+xml, application/atom+xml, application/xml, text/xml, */*;q=0.8';
+    let res = await fetch(url, { headers: { 'user-agent': UA, accept } });
+    if (!res.ok) {
+      // Some hosts answer 404 or 403 to unknown clients from datacenter IPs. One retry as a browser.
+      console.warn(`fetch-feeds: ${name}: HTTP ${res.status}, retrying with a browser user agent`);
+      res = await fetch(url, { headers: { 'user-agent': BROWSER_UA, accept, 'accept-language': 'en-US,en;q=0.9' } });
+    }
     if (!res.ok) throw new Error(`${name}: HTTP ${res.status} for ${url}`);
     text = await res.text();
   }
@@ -151,16 +159,24 @@ const jobs = [
 ];
 
 await mkdir(OUT_DIR, { recursive: true });
-let failed = false;
+let fatal = false;
 for (const [file, key, normalize] of jobs) {
+  const out = resolve(OUT_DIR, `${file}.json`);
   try {
     const doc = await load(key, urls[key]);
     const rows = normalize(doc);
-    await writeFile(resolve(OUT_DIR, `${file}.json`), JSON.stringify(rows, null, 2) + '\n');
+    await writeFile(out, JSON.stringify(rows, null, 2) + '\n');
     console.log(`fetch-feeds: ${file}: ${rows.length} items from ${urls[key]}`);
   } catch (err) {
-    failed = true;
-    console.error(`fetch-feeds: FAILED ${file}: ${err.message}`);
+    if (existsSync(out)) {
+      // Checkpoint: the last good snapshot is committed. Ship it, say so loudly.
+      console.error(`::warning title=Feed fetch failed::${file}: ${err.message}. Using the committed snapshot.`);
+      console.error(`fetch-feeds: WARNING ${file}: ${err.message}. Using the committed snapshot ${out}.`);
+    } else {
+      fatal = true;
+      console.error(`::error title=Feed fetch failed::${file}: ${err.message}. No snapshot to fall back to.`);
+      console.error(`fetch-feeds: FAILED ${file}: ${err.message}`);
+    }
   }
 }
-if (failed) process.exit(1);
+if (fatal) process.exit(1);
