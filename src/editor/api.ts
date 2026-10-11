@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { readdir, readFile, writeFile, unlink } from 'node:fs/promises';
 import { resolve, basename } from 'node:path';
+import { sameOrigin, requireJson } from './guard';
 
 const DIR = resolve('src/content/ar');
 const SAFE = /^[a-z0-9][a-z0-9-]{0,80}\.md$/;
@@ -41,7 +42,9 @@ function safe(file: string): string {
   return resolve(DIR, name);
 }
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, request }) => {
+  const denied = sameOrigin(request);
+  if (denied) return denied;
   const file = url.searchParams.get('file');
   if (file) {
     const text = await readFile(safe(file), 'utf8');
@@ -53,6 +56,8 @@ export const GET: APIRoute = async ({ url }) => {
 };
 
 export const POST: APIRoute = async ({ request }) => {
+  const denied = sameOrigin(request) ?? requireJson(request);
+  if (denied) return denied;
   const d = (await request.json()) as Doc;
   if (!d.title?.trim()) return json({ error: 'title is required' }, 400);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(d.date)) return json({ error: 'date must be YYYY-MM-DD' }, 400);
@@ -62,7 +67,9 @@ export const POST: APIRoute = async ({ request }) => {
   return json({ ok: true, file: basename(path) });
 };
 
-export const DELETE: APIRoute = async ({ url }) => {
+export const DELETE: APIRoute = async ({ url, request }) => {
+  const denied = sameOrigin(request);
+  if (denied) return denied;
   const file = url.searchParams.get('file') ?? '';
   try { await unlink(safe(file)); } catch (e) { return json({ error: (e as Error).message }, 400); }
   return json({ ok: true });
