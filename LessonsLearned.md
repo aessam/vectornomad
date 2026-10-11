@@ -14,3 +14,7 @@ A `curl -I` on medium.com looked like a block. A GET with a browser user agent r
 
 ## 2026-10-11 YouTube feed endpoint returned 404 for every channel during the first deploy
 `youtube.com/feeds/videos.xml?channel_id=…` worked at 14:00 and returned 404 for all channels at 18:30, locally and from Actions, regardless of headers. The channel page still advertised the same feed URL. Resolution: the fetch script retries once with a browser user agent, then falls back to the committed JSON snapshot with a GitHub `::warning` annotation. It exits non-zero only when there is no snapshot. The committed feed JSON is the checkpoint.
+
+## 2026-10-11 First deploy: environment branch policy and Cloudflare proxy
+1. The `github-pages` environment was created with a branch policy allowing only `development`, so the deploy job was rejected for `main`. Fix: add `main` to the environment's deployment branch policies (API: POST .../environments/github-pages/deployment-branch-policies).
+2. With Cloudflare's proxy on, GitHub cannot verify the domain and serves its `*.github.io` wildcard for the hostname, which browsers flag as unsafe. Proxy off alone was not enough: GitHub's checker kept a stale "proxied" answer. Removing and re-adding the custom domain forced a fresh check; the certificate went authorization_pending → approved in under a minute and reached the edge a minute later. A CDN-cached 404 for `/` from the proxied window cleared on its own after max-age 600.
