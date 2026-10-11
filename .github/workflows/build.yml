@@ -3,9 +3,6 @@ name: Build and deploy
 on:
   push:
     branches: [main]
-  schedule:
-    # Daily, 04:17 UTC. Pulls new episodes, videos and articles.
-    - cron: '17 4 * * *'
   workflow_dispatch:
 
 permissions:
@@ -25,14 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      # Fails the job if any feed is unconfigured or unreachable. No silent empty site.
-      - name: Fetch feeds
-        run: npm run fetch
+      # Feeds are fetched on your machine by scripts/publish.sh and committed. CI never touches the network.
       - name: Build and upload
         uses: withastro/action@v6
 

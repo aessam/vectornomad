@@ -45,3 +45,8 @@ Consequences: regenerate with ImageMagick from the source PNG (`-alpha off -colo
 Context: ahmed-essam.* stays with the old blog, essamcafe.com stays with the podcast. VectorNomad is the handle used elsewhere (Hugging Face) and the owner likes it.
 Decision: `site.url = https://vectornomad.com`, `base = /`, `public/CNAME` = vectornomad.com. DNS at Cloudflare: four A records to GitHub Pages (185.199.108.153, .109.153, .110.153, .111.153), proxy off so GitHub can issue the certificate; optional `www` CNAME to the github.io host with GitHub set to redirect it.
 Consequences: the domain is the address only; the identity stays the seal, the Arabic name and the podcast brand. Cloudflare proxy must stay off for the apex or GitHub's TLS provisioning fails.
+
+## 2026-10-11 DSCN-9: Feeds are fetched on the owner's machine, not in CI
+Context: the owner does not want scheduled builds burning runs for nothing, and the first deploy showed CI fetches fail on third-party outages.
+Decision: no cron. `scripts/publish.sh` fetches, builds, commits `src/data/feeds/*.json` and pushes. The workflow runs on push and manual dispatch only, and never fetches. The committed JSON is the single source for every build.
+Consequences: the site updates when the owner runs the script. A failed feed keeps its last snapshot locally with a warning, so a publish is never blocked by one source. The 60-day cron pause no longer matters.
