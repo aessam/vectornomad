@@ -63,6 +63,14 @@ const firstImg = (html) => {
   return undefined;
 };
 const excerpt = (text, n = 220) => (text.length <= n ? text : text.slice(0, n).replace(/\s+\S*$/, '') + '…');
+// Show notes are often Markdown with links. Keep prose only.
+const prose = (text) =>
+  text
+    .replace(/https?:\/\/\S+/g, ' ')
+    .replace(/[#*_`>]+/g, ' ')
+    .replace(/^\s*ملخص الحلقة\s*[:：-]?\s*/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 const iso = (d, name) => {
   const t = new Date(d);
   if (Number.isNaN(t.getTime())) throw new Error(`${name}: bad date "${d}"`);
@@ -74,8 +82,7 @@ function episodes(doc) {
   const channel = doc?.rss?.channel;
   const items = channel?.item;
   if (!items?.length) throw new Error('podcast: no <item> in feed');
-  // Most episodes carry no artwork of their own. Fall back to the show artwork.
-  const showImage = channel['itunes:image']?.['@_href'] || channel.image?.url || undefined;
+  // Episode art only when the episode has its own. The site uses the brand banner otherwise.
   return items.slice(0, KEEP).map((it) => {
     const audio = it.enclosure?.['@_url'];
     if (!audio) throw new Error(`podcast: episode "${str(it.title)}" has no enclosure`);
@@ -87,8 +94,8 @@ function episodes(doc) {
       date: iso(str(it.pubDate), 'podcast'),
       audio,
       duration: duration || undefined,
-      image: it['itunes:image']?.['@_href'] || it['media:thumbnail']?.['@_url'] || showImage,
-      summary: excerpt(stripHtml(it['itunes:summary'] || it.description || '')),
+      image: it['itunes:image']?.['@_href'] || it['media:thumbnail']?.['@_url'] || undefined,
+      summary: excerpt(prose(stripHtml(it['itunes:summary'] || it.description || ''))),
     };
   });
 }

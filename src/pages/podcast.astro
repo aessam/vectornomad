@@ -20,7 +20,7 @@ const subs = [
       </div>
     )}
   </div>
-  <div class="list">
+  <div class="grid-3">
     {eps.map((e) => <EpisodeCard entry={e} />)}
   </div>
 </Layout>
@@ -29,5 +29,4 @@ const subs = [
   h1 { font-size: 40px; }
   .head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
   .subs { display: flex; flex-wrap: wrap; gap: 8px; }
-  .list { max-width: 760px; display: flex; flex-direction: column; gap: 20px; }
 </style>

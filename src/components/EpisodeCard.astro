@@ -2,16 +2,19 @@
 import type { CollectionEntry } from 'astro:content';
 import Card from './Card.astro';
 import { fmtDate, fmtDuration, langOf } from '../lib/format';
+import { href } from '../lib/url';
 interface Props { entry: CollectionEntry<'episodes'>; featured?: boolean }
 const { entry, featured = false } = Astro.props;
 const d = entry.data;
 const dur = fmtDuration(d.duration);
+// Own episode art, blurred, when the feed has one. Otherwise the pre-blurred brand banner.
+const small = (url: string) => url.replace(/\/3000x3000\//, '/640x640/');
+const bg = d.image ? small(d.image) : href('/brand/banner-blur.jpg');
 ---
 
-<Card layout="row" class={featured ? 'featured' : undefined}>
-  {d.image && <img slot="media" src={d.image} alt="" loading={featured ? 'eager' : 'lazy'} style="aspect-ratio: 1 / 1" />}
+<Card bg={bg} class={featured ? 'episode featured' : 'episode'}>
   <Fragment slot="eyebrow">{featured ? 'Latest episode' : 'Podcast'} · {fmtDate(d.date)}{dur && ` · ${dur}`}</Fragment>
   <h3 class="tile-title" lang={langOf(d.title)} dir="auto"><a href={d.url}>{d.title}</a></h3>
-  {featured && d.summary && <p class="tile-sub" lang={langOf(d.summary)} dir="auto">{d.summary}</p>}
+  {d.summary && <p class="tile-sub" lang={langOf(d.summary)} dir="auto">{d.summary}</p>}
   <audio slot="footer" controls preload="none" src={d.audio}></audio>
 </Card>

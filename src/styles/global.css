@@ -224,3 +224,8 @@ audio { width: 100%; display: block; }
   .banner::before, .banner::after { display: none; }
   .banner h1 { font-size: 34px; }
 }
+
+/* Episode tiles: text and player, the artwork lives in the backdrop. */
+.tile.episode .tile-sub { -webkit-line-clamp: 5; }
+.tile.episode .tile-footer { padding-top: 14px; }
+.tile.episode audio { height: 40px; border-radius: 999px; }
