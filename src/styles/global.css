@@ -69,6 +69,8 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.15; letter-spacing: -0.
 :lang(ar) { font-family: var(--font-amiri); line-height: 1.9; letter-spacing: 0; }
 :lang(ar) h1, :lang(ar) h2, :lang(ar) h3 { line-height: 1.5; letter-spacing: 0; }
 :lang(ar) p { font-size: 1.05em; }
+/* An English region inside an Arabic document (header, footer) must not inherit Amiri from <html>. */
+:lang(en) { font-family: var(--font-crimson); line-height: 1.55; }
 
 .wrap { max-width: 1232px; width: 100%; margin: 0 auto; padding: 0 24px; box-sizing: border-box; }
 .meta, .eyebrow {
