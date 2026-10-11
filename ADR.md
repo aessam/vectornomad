@@ -50,3 +50,8 @@ Consequences: the domain is the address only; the identity stays the seal, the A
 Context: the owner does not want scheduled builds burning runs for nothing, and the first deploy showed CI fetches fail on third-party outages.
 Decision: no cron. `scripts/publish.sh` fetches, builds, commits `src/data/feeds/*.json` and pushes. The workflow runs on push and manual dispatch only, and never fetches. The committed JSON is the single source for every build.
 Consequences: the site updates when the owner runs the script. A failed feed keeps its last snapshot locally with a warning, so a publish is never blocked by one source. The 60-day cron pause no longer matters.
+
+## 2026-10-11 DSCN-10: Arabic editor is a dev-only route inside the site, not a hosted CMS
+Context: Arabic needs an editing surface that renders like the site. Hosted Git CMSs document RTL only as a mirrored layout; none document bidirectional text handling. Obsidian handles bidi but previews in its own font.
+Decision: an Astro integration injects `/editor` and `/editor/api` only when `command === 'dev'`. The page uses the site layout, Amiri at 21px, `dir=rtl`, a Markdown preview, and writes to `src/content/ar` and `public/images/ar` through local endpoints. The build never includes it, so nothing is reachable on the deployed site. Blocks in Arabic posts stay RTL; only `code` takes its own direction (`unicode-bidi: plaintext`), because per-block plaintext would left-align any paragraph that starts with a Latin word.
+Consequences: writing happens on the Mac with `npm run dev`. Phone editing is out of scope by choice. The dev server reloads the page when a new content file appears; the editor restores the open post from sessionStorage.

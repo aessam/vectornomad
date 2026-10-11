@@ -1,0 +1,279 @@
+---
+// Dev-only. Served by src/editor/integration.mjs under `astro dev`, never built.
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="المحرر" lang="ar" description="محرر المقالات العربية، يعمل محلياً فقط.">
+  <div class="ed" id="ed">
+    <aside class="side">
+      <div class="side-head">
+        <h1>المقالات</h1>
+        <button type="button" class="btn" id="new">مقال جديد</button>
+      </div>
+      <ul class="list" id="list" aria-label="المقالات"></ul>
+      <div class="images">
+        <div class="side-head">
+          <h2>الصور</h2>
+          <label class="btn-ghost upload">رفع صورة<input type="file" id="upload" accept="image/*" hidden /></label>
+        </div>
+        <div class="thumbs" id="thumbs" aria-label="الصور المتاحة"></div>
+        <p class="hint">اضغط صورة لإدراجها مكان المؤشر. الملفات في <code dir="ltr">public/images/ar</code>.</p>
+      </div>
+      <p class="hint">يعمل هذا المحرر على جهازك فقط. الحفظ يكتب ملفاً في <code dir="ltr">src/content/ar</code>، والنشر يكون بـ commit و push كالمعتاد.</p>
+    </aside>
+
+    <section class="main" aria-label="التحرير">
+      <form id="form" class="form" autocomplete="off">
+        <div class="row">
+          <label class="field grow">
+            <span class="eyebrow">العنوان</span>
+            <input name="title" required />
+          </label>
+          <label class="field">
+            <span class="eyebrow">التاريخ</span>
+            <input name="date" type="date" required dir="ltr" />
+          </label>
+        </div>
+        <div class="row">
+          <label class="field grow">
+            <span class="eyebrow">اسم الملف (حروف لاتينية)</span>
+            <input name="file" dir="ltr" placeholder="2026-10-11-my-post.md" pattern="[a-z0-9][a-z0-9\-]*\.md" required />
+          </label>
+          <label class="field check">
+            <input name="draft" type="checkbox" />
+            <span>مسودّة (لا تُنشر)</span>
+          </label>
+        </div>
+        <label class="field">
+          <span class="eyebrow">الملخص</span>
+          <input name="summary" />
+        </label>
+        <div class="split">
+          <label class="field grow">
+            <span class="eyebrow">النص (Markdown)</span>
+            <textarea name="body" rows="22" spellcheck="true"></textarea>
+          </label>
+          <div class="field grow">
+            <span class="eyebrow">المعاينة</span>
+            <article class="preview post" id="preview"></article>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn" id="save">حفظ <kbd dir="ltr">⌘S</kbd></button>
+          <button type="button" class="btn-ghost" id="open" disabled>فتح الصفحة</button>
+          <button type="button" class="btn-ghost danger" id="delete" disabled>حذف</button>
+          <span class="status" id="status" aria-live="polite"></span>
+        </div>
+      </form>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  import { marked } from 'marked';
+
+  const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
+  const list = $('#list');
+  const form = $<HTMLFormElement>('#form');
+  const preview = $('#preview');
+  const status = $('#status');
+  const openBtn = $<HTMLButtonElement>('#open');
+  const delBtn = $<HTMLButtonElement>('#delete');
+  const field = (n: string) => form.elements.namedItem(n) as HTMLInputElement | HTMLTextAreaElement;
+  let current: string | null = null; // file name currently loaded, null = new
+  const KEY = 'editor.current';
+  const remember = () => { if (current) sessionStorage.setItem(KEY, current); else sessionStorage.removeItem(KEY); };
+
+  const say = (msg: string, bad = false) => { status.textContent = msg; status.classList.toggle('bad', bad); };
+  const today = () => new Date().toISOString().slice(0, 10);
+
+  async function api(path: string, init?: RequestInit) {
+    const r = await fetch(path, init);
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error ?? r.statusText);
+    return data;
+  }
+
+  async function refresh() {
+    const docs: { file: string; title: string; date: string; draft: boolean }[] = await api('/editor/api');
+    list.innerHTML = '';
+    for (const d of docs) {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'item' + (d.file === current ? ' active' : '');
+      b.innerHTML = `<span class="t"></span><span class="meta"></span>`;
+      (b.firstElementChild as HTMLElement).textContent = d.title || d.file;
+      (b.lastElementChild as HTMLElement).textContent = `${d.date}${d.draft ? ' · مسودّة' : ''}`;
+      b.addEventListener('click', () => load(d.file));
+      li.appendChild(b);
+      list.appendChild(li);
+    }
+  }
+
+  function fill(d: { file: string; title: string; date: string; summary: string; draft: boolean; body: string }) {
+    field('file').value = d.file;
+    field('title').value = d.title;
+    field('date').value = d.date;
+    field('summary').value = d.summary;
+    (field('draft') as HTMLInputElement).checked = d.draft;
+    field('body').value = d.body;
+    render();
+  }
+
+  async function load(file: string) {
+    const d = await api(`/editor/api?file=${encodeURIComponent(file)}`);
+    current = file;
+    remember();
+    fill(d);
+    openBtn.disabled = false;
+    delBtn.disabled = false;
+    say(`فُتح ${file}`);
+    refresh();
+  }
+
+  function fresh() {
+    current = null;
+    remember();
+    fill({ file: `${today()}-.md`, title: '', date: today(), summary: '', draft: false, body: '' });
+    openBtn.disabled = true;
+    delBtn.disabled = true;
+    field('title').focus();
+    say('مقال جديد');
+    refresh();
+  }
+
+  function render() {
+    preview.innerHTML = marked.parse(field('body').value) as string;
+  }
+
+  async function save() {
+    const d = {
+      file: field('file').value.trim(),
+      title: field('title').value.trim(),
+      date: field('date').value,
+      summary: field('summary').value.trim(),
+      draft: (field('draft') as HTMLInputElement).checked,
+      body: field('body').value,
+    };
+    try {
+      const r = await api('/editor/api', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(d) });
+      if (current && current !== r.file) await api(`/editor/api?file=${encodeURIComponent(current)}`, { method: 'DELETE' }); // renamed
+      current = r.file;
+      remember();
+      openBtn.disabled = false;
+      delBtn.disabled = false;
+      say(`حُفظ ${r.file}`);
+      refresh();
+    } catch (e) {
+      say((e as Error).message, true);
+    }
+  }
+
+  form.addEventListener('submit', (e) => { e.preventDefault(); save(); });
+  document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); save(); } });
+  field('body').addEventListener('input', render);
+  $('#new').addEventListener('click', fresh);
+  openBtn.addEventListener('click', () => { if (current) window.open(`/ar/${current.replace(/\.md$/, '')}/`, '_blank'); });
+  delBtn.addEventListener('click', async () => {
+    if (!current || !confirm(`حذف ${current}؟`)) return;
+    await api(`/editor/api?file=${encodeURIComponent(current)}`, { method: 'DELETE' });
+    say(`حُذف ${current}`);
+    fresh();
+  });
+
+  // Saving a new file makes the dev server reload the page. Come back to what was open.
+  const last = sessionStorage.getItem(KEY);
+  refresh().then(() => (last ? load(last).catch(fresh) : fresh()));
+
+  // Images
+  const thumbs = $('#thumbs');
+  const upload = $<HTMLInputElement>('#upload');
+  function insertAtCursor(text: string) {
+    const ta = field('body') as HTMLTextAreaElement;
+    const [a, b] = [ta.selectionStart, ta.selectionEnd];
+    const before = ta.value.slice(0, a), after = ta.value.slice(b);
+    // Always leave a blank line above, or Markdown folds the image into the previous block.
+    const pad = !before ? '' : before.endsWith('\n\n') ? '' : before.endsWith('\n') ? '\n' : '\n\n';
+    ta.value = before + pad + text + '\n\n' + after;
+    const pos = (before + pad + text).length;
+    ta.setSelectionRange(pos, pos);
+    ta.focus();
+    render();
+  }
+  async function refreshImages() {
+    const imgs: { file: string; url: string }[] = await api('/editor/api/images');
+    thumbs.innerHTML = '';
+    for (const im of imgs) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'thumb';
+      b.title = im.file;
+      const img = document.createElement('img');
+      img.src = im.url; img.alt = ''; img.loading = 'lazy';
+      b.appendChild(img);
+      b.addEventListener('click', () => insertAtCursor(`![](${im.url})`));
+      thumbs.appendChild(b);
+    }
+  }
+  upload.addEventListener('change', async () => {
+    const f = upload.files?.[0];
+    if (!f) return;
+    const fd = new FormData();
+    fd.append('file', f);
+    try {
+      const r = await api('/editor/api/images', { method: 'POST', body: fd });
+      say(`رُفعت ${r.file}`);
+      await refreshImages();
+      insertAtCursor(`![](${r.url})`);
+    } catch (e) {
+      say((e as Error).message, true);
+    }
+    upload.value = '';
+  });
+  refreshImages();
+</script>
+
+<style>
+  .ed { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 32px; align-items: start; }
+  .side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 24px; }
+  .side-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  h1 { font-size: 28px; }
+  .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow: auto; }
+  .item { width: 100%; text-align: start; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; cursor: pointer; font: inherit; color: inherit; display: flex; flex-direction: column; gap: 2px; }
+  .item.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .item .t { font-size: 17px; font-weight: 700; }
+  .item .meta { font-family: var(--font-plex-mono); font-size: 11px; color: var(--meta); }
+  .images { display: flex; flex-direction: column; gap: 10px; }
+  .images h2 { font-size: 20px; }
+  .upload { cursor: pointer; }
+  .thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .thumb { padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--card); cursor: pointer; aspect-ratio: 1; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .preview :global(pre) { direction: ltr; text-align: left; font-family: var(--font-plex-mono); font-size: 15px; background: var(--tint); border-radius: 12px; padding: 16px 20px; overflow-x: auto; }
+  .preview :global(code) { unicode-bidi: plaintext; font-family: var(--font-plex-mono); font-size: 0.85em; }
+  .preview :global(img) { border-radius: 12px; }
+  .hint { margin: 0; font-size: 15px; color: var(--muted); line-height: 1.8; }
+  .form { display: flex; flex-direction: column; gap: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.grow { flex: 1 1 240px; }
+  .field.check { flex-direction: row; align-items: center; gap: 10px; min-height: 48px; font-size: 17px; white-space: nowrap; }
+  .field.check input { width: 22px; height: 22px; padding: 0; accent-color: var(--accent); }
+  input, textarea { font: inherit; font-size: 21px; line-height: 1.9; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; width: 100%; box-sizing: border-box; }
+  input[dir='ltr'] { font-family: var(--font-plex-mono); font-size: 15px; }
+  textarea { resize: vertical; min-height: 420px; }
+  input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .preview { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 24px; min-height: 420px; font-size: 21px; line-height: 2; }
+  .preview :global(p) { margin: 0 0 1.2em; }
+  .preview :global(h2) { font-size: 28px; margin: 1.4em 0 0.6em; }
+  .preview :global(blockquote) { margin: 0 0 1.2em; padding-inline-start: 20px; border-inline-start: 3px solid var(--line); color: var(--muted); }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .btn, .btn-ghost { cursor: pointer; font: inherit; font-size: 17px; }
+  .btn kbd { font-family: var(--font-plex-mono); font-size: 12px; opacity: 0.8; margin-inline-start: 8px; }
+  .danger { color: var(--brand-coral); }
+  .status { font-size: 16px; color: var(--muted); }
+  .status.bad { color: var(--brand-coral); }
+  @media (max-width: 900px) { .ed { grid-template-columns: 1fr; } .split { grid-template-columns: 1fr; } .side { position: static; } }
+</style>

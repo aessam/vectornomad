@@ -1,7 +1,9 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import { site } from './site.config.mjs';
+import editor from './src/editor/integration.mjs';
 
 export default defineConfig({
+  integrations: [editor()],
   site: site.url,
   base: site.base,
   // v7 default is 'jsx', which strips whitespace between inline elements.
