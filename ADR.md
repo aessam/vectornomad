@@ -30,3 +30,8 @@ Consequences: `brand/` source files stay out of git (gitignored); only `public/b
 Context: five card components each invented their own layout; the article card collapsed in a flex row and the set looked inconsistent.
 Decision: `Card.astro` is the only card shell (media, eyebrow, body, footer slots; `stack` or `row` layout; `card` or `tint` tone). No borders, 20px radius, media bleeds to the edge at a fixed aspect ratio, soft shadow, 2px hover lift, whole tile is the link. Page ground moves to a navy-tinted off-white (#F5F7FA) so white tiles read as tiles; dark mode uses flat elevated fills with a hairline instead of shadow.
 Consequences: wrappers are a few lines each. Any new content type gets a tile for free. The video tile keeps the facade button as its control, so its title is not a stretched link.
+
+## 2026-10-10 DSCN-6: Brand banner hero, uncropped artwork, glass tiles
+Context: the square artwork was being cropped in tiles, losing the banner's side pattern; tiles read flat.
+Decision: `scripts/extract-side-pattern.mjs` pulls the side strips out of the 1280x720 banner SVG into `public/brand/side-left.svg` and `side-right.svg`. The hero is a navy banner with those strips at both edges, sized to the section so nothing tiles (the pattern is hand-drawn and not periodic). Episode artwork uses `object-fit: contain` on the brand navy, which is the artwork's own ground, so it is never cropped. Every tile is glass: translucent gradient, 24px backdrop blur, hairline edge and inner highlight, over a faint brand-colored mesh on the page ground.
+Consequences: strips are hidden under 560px to keep the hero readable. Backdrop blur is GPU work; 11 tiles on the hub is fine, a 50-item stream page is the thing to watch.

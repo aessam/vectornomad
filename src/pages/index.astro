@@ -16,10 +16,10 @@ const latest = eps[0];
 ---
 
 <Layout title="Home">
-  <section class="hero">
+  <section class="banner" aria-label="Intro and latest episode" style={`--strip-left:url(${href('/brand/side-left.svg')});--strip-right:url(${href('/brand/side-right.svg')})`}>
     <div class="intro">
       <h1>{site.tagline}</h1>
-      <p class="muted">{site.intro}</p>
+      <p class="lead">{site.intro}</p>
       <div class="actions">
         <a href={href('/podcast')} class="btn">Latest episode</a>
         <a href={href('/stream')} class="btn-ghost">Full stream</a>
@@ -55,11 +55,5 @@ const latest = eps[0];
 </Layout>
 
 <style>
-  .hero { display: flex; flex-wrap: wrap; gap: 40px; align-items: stretch; }
-  .intro { flex: 1 1 380px; display: flex; flex-direction: column; gap: 16px; justify-content: center; }
-  .hero :global(.tile) { flex: 1 1 440px; }
-  h1 { font-size: 46px; letter-spacing: -0.02em; }
-  .intro p { margin: 0; font-size: 20px; max-width: 520px; }
-  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
-  @media (max-width: 560px) { h1 { font-size: 34px; } }
+  /* Banner styles live in global.css (.banner) so the pattern can be reused. */
 </style>
