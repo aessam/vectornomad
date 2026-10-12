@@ -47,8 +47,12 @@ export const GET: APIRoute = async ({ url, request }) => {
   if (denied) return denied;
   const file = url.searchParams.get('file');
   if (file) {
-    const text = await readFile(safe(file), 'utf8');
-    return json(parse(file, text));
+    try {
+      const text = await readFile(safe(file), 'utf8');
+      return json(parse(file, text));
+    } catch (e) {
+      return json({ error: `${file}: ${(e as Error).message}` }, 404);
+    }
   }
   const names = (await readdir(DIR)).filter((n) => n.endsWith('.md')).sort().reverse();
   const docs = await Promise.all(names.map(async (n) => { const d = parse(n, await readFile(resolve(DIR, n), 'utf8')); return { file: n, title: d.title, date: d.date, draft: d.draft }; }));
