@@ -16,7 +16,7 @@ if [[ $build -eq 1 ]]; then npm run --silent build >/dev/null || { echo "build f
 ! lsof -iTCP:$PORT -sTCP:LISTEN >/dev/null 2>&1 || { echo "port $PORT busy" >&2; exit 1; }
 
 # Launch the server directly (no npx wrapper) so the PID we kill is the server itself.
-node node_modules/astro/astro.js preview --port $PORT --host 127.0.0.1 >/tmp/og-preview.log 2>&1 &
+node node_modules/astro/bin/astro.mjs preview --port $PORT --host 127.0.0.1 >/tmp/og-preview.log 2>&1 &
 pid=$!
 cleanup() { kill "$pid" 2>/dev/null || true; pkill -P "$pid" 2>/dev/null || true; }
 trap cleanup EXIT
