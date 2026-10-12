@@ -15,10 +15,12 @@ if [[ $build -eq 1 ]]; then npm run --silent build >/dev/null || { echo "build f
 [[ -d dist/og ]] || { echo "dist/og missing, build first" >&2; exit 1; }
 ! lsof -iTCP:$PORT -sTCP:LISTEN >/dev/null 2>&1 || { echo "port $PORT busy" >&2; exit 1; }
 
-# Launch the server directly (no npx wrapper) so the PID we kill is the server itself.
+# Job control puts the server in its own process group, so cleanup can kill the server and anything it spawned.
+set -m
 node node_modules/astro/bin/astro.mjs preview --port $PORT --host 127.0.0.1 >/tmp/og-preview.log 2>&1 &
 pid=$!
-cleanup() { kill "$pid" 2>/dev/null || true; pkill -P "$pid" 2>/dev/null || true; }
+set +m
+cleanup() { kill -- -"$pid" 2>/dev/null || kill "$pid" 2>/dev/null || true; }
 trap cleanup EXIT
 for i in $(seq 1 40); do curl -s -o /dev/null "http://127.0.0.1:$PORT/og/site/" && break; sleep 0.25; done
 curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/og/site/" | grep -q 200 || { echo "preview did not start" >&2; cat /tmp/og-preview.log >&2; exit 1; }
