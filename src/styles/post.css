@@ -2,6 +2,7 @@
 .post { max-width: 760px; display: flex; flex-direction: column; gap: 20px; }
 .post.has-hero { max-width: 860px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
 .post .plain { display: flex; flex-direction: column; gap: 12px; }
+.post [hidden] { display: none !important; } /* the editor toggles hero/plain with the hidden attribute */
 .post h1 { font-size: 40px; }
 
 /* Header image blends into the card: the bottom of the image fades out, the title sits in the faded zone. */
@@ -12,6 +13,9 @@
 .post .hero-text .meta { color: var(--muted); }
 .post.has-hero .body { padding: 8px 32px 36px; }
 
+/* Lede: the summary, under the title, before the body. */
+.post .lede { margin: 0; font-size: 23px; line-height: 1.8; color: var(--muted); unicode-bidi: plaintext; text-align: start; }
+.post.has-hero .lede { padding: 4px 32px 0; }
 .post .body { font-size: 21px; line-height: 2; }
 /* Every block and list item picks its own direction from its first strong character. */
 .post .body > *, .post .body li, .post .body code { unicode-bidi: plaintext; text-align: start; }
@@ -29,5 +33,7 @@
   .post .hero-text h1 { font-size: 30px; }
   .post .hero-text { inset-inline: 20px; }
   .post.has-hero .body { padding: 8px 20px 28px; }
+  .post.has-hero .lede { padding: 4px 20px 0; }
+  .post .lede { font-size: 20px; }
   .post .body { font-size: 19px; }
 }

@@ -11,8 +11,10 @@ const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json; charset=utf-8' } });
 
 const safeName = (name: string) => {
-  const ext = extname(name).toLowerCase();
-  const stem = basename(name, extname(name)).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'image';
+  const ext = extname(name).toLowerCase() === '.jpeg' ? '.jpg' : extname(name).toLowerCase();
+  let stem = basename(name, extname(name)).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+  // Phone exports arrive as UUIDs. Give them a date-based name instead.
+  if (!stem || /^[0-9a-f]{8}-[0-9a-f]{4}-/.test(stem)) stem = `img-${new Date().toISOString().slice(0, 10)}-${Math.random().toString(36).slice(2, 6)}`;
   return { ext, file: `${stem}${ext}` };
 };
 

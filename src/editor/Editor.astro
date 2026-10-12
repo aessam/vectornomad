@@ -76,6 +76,7 @@ import '../styles/post.css';
                 <div class="meta" id="previewDate"></div>
                 <h1 id="previewTitle"></h1>
               </header>
+              <p class="lede" id="previewLede" hidden></p>
               <div class="body" id="preview"></div>
             </article>
           </div>
@@ -106,6 +107,19 @@ import '../styles/post.css';
   const KEY = 'editor.current';
   const remember = () => { if (current) sessionStorage.setItem(KEY, current); else sessionStorage.removeItem(KEY); };
 
+  // Rough Arabic → Latin for URLs. Consonant skeleton, readable enough, always ASCII.
+  const AR: Record<string, string> = { 'ا':'a','أ':'a','إ':'a','آ':'a','ء':'','ؤ':'o','ئ':'e','ب':'b','ت':'t','ث':'th','ج':'j','ح':'h','خ':'kh','د':'d','ذ':'dh','ر':'r','ز':'z','س':'s','ش':'sh','ص':'s','ض':'d','ط':'t','ظ':'z','ع':'a','غ':'gh','ف':'f','ق':'q','ك':'k','ل':'l','م':'m','ن':'n','ه':'h','ة':'h','و':'w','ي':'y','ى':'a','ـ':'' };
+  function slugify(title: string): string {
+    const s = [...title.normalize('NFKD')].map((ch) => AR[ch] ?? (/[\u064B-\u0652\u0670]/.test(ch) ? '' : ch)).join('')
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+    return s;
+  }
+  let fileTouched = false;
+  function suggestFile() {
+    if (fileTouched || current) return;
+    const slug = slugify(field('title').value) || 'post';
+    field('file').value = `${field('date').value || today()}-${slug}.md`;
+  }
   const say = (msg: string, bad = false) => { status.textContent = msg; status.classList.toggle('bad', bad); };
   const today = () => new Date().toISOString().slice(0, 10);
 
@@ -157,6 +171,7 @@ import '../styles/post.css';
 
   function fresh() {
     current = null;
+    fileTouched = false;
     remember();
     fill({ file: `${today()}-.md`, title: '', date: today(), summary: '', image: '', draft: false, body: '' });
     openBtn.disabled = true;
@@ -184,9 +199,13 @@ import '../styles/post.css';
     $('#previewTitle').textContent = title;
     $('#previewDateHero').textContent = date;
     $('#previewDate').textContent = date;
+    const lede = $('#previewLede');
+    lede.textContent = field('summary').value;
+    lede.hidden = !field('summary').value.trim();
   }
 
   async function save() {
+    if (/^\d{4}-\d{2}-\d{2}-?\.md$/.test(field('file').value.trim())) { say('اسم الملف يحتاج كلمة بعد التاريخ', true); field('file').focus(); return; }
     const d = {
       file: field('file').value.trim(),
       title: field('title').value.trim(),
@@ -213,8 +232,10 @@ import '../styles/post.css';
   form.addEventListener('submit', (e) => { e.preventDefault(); save(); });
   document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); save(); } });
   field('body').addEventListener('input', render);
-  field('title').addEventListener('input', render);
+  field('title').addEventListener('input', () => { suggestFile(); render(); });
+  field('file').addEventListener('input', () => { fileTouched = true; });
   field('date').addEventListener('input', render);
+  field('summary').addEventListener('input', render);
   $('#new').addEventListener('click', fresh);
   openBtn.addEventListener('click', () => { if (current) window.open(`/ar/${current.replace(/\.md$/, '')}/`, '_blank'); });
   delBtn.addEventListener('click', async () => {
@@ -233,12 +254,15 @@ import '../styles/post.css';
   const headerThumb = $<HTMLImageElement>('#headerThumb');
   const headerName = $('#headerName');
   const headerClear = $<HTMLButtonElement>('#headerClear');
+  let known = new Set<string>(); // image urls that exist on disk, from the last listing
   function setHeader(url: string, name?: string) {
     field('image').value = url;
     headerThumb.hidden = !url;
     headerClear.hidden = !url;
     if (url) headerThumb.src = url;
-    headerName.textContent = url ? (name ?? url.split('/').pop() ?? url) : 'بدون. اختر من الصور في الجانب';
+    const missing = !!url && known.size > 0 && !known.has(url);
+    headerName.textContent = !url ? 'بدون. اختر من الصور في الجانب' : missing ? `الصورة غير موجودة: ${url.split('/').pop()}. اختر غيرها` : (name ?? url.split('/').pop() ?? url);
+    $('#headerChip').classList.toggle('bad', missing);
     thumbs.querySelectorAll<HTMLElement>('.thumb').forEach((el) => el.classList.toggle('is-header', el.dataset.url === url));
     render();
   }
@@ -258,6 +282,7 @@ import '../styles/post.css';
   }
   async function refreshImages() {
     const imgs: { file: string; url: string }[] = await api('/editor/api/images');
+    known = new Set(imgs.map((im) => im.url));
     thumbs.innerHTML = '';
     for (const im of imgs) {
       const wrap = document.createElement('div');
@@ -280,6 +305,7 @@ import '../styles/post.css';
       wrap.append(b, h);
       thumbs.appendChild(wrap);
     }
+    if (field('image').value) setHeader(field('image').value);
   }
   upload.addEventListener('change', async () => {
     const f = upload.files?.[0];
@@ -320,6 +346,7 @@ import '../styles/post.css';
   .thumbs :global(.thumb .as-header) { position: absolute; inset-inline-start: 4px; bottom: 4px; font: inherit; font-size: 12px; line-height: 1; padding: 5px 8px; border-radius: 999px; border: 0; background: rgba(14, 34, 68, 0.75); color: #fff; cursor: pointer; }
   .thumbs :global(.thumb.is-header .as-header) { background: var(--brand-coral); }
   .chip { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px 6px 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); font-size: 15px; color: var(--muted); }
+  .chip.bad { border-color: var(--brand-coral); color: var(--brand-coral); }
   .chip img { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; }
   .chip .x { margin-inline-start: auto; border: 0; background: none; color: var(--brand-coral); font-size: 22px; cursor: pointer; min-width: 36px; min-height: 36px; }
   .hint { margin: 0; font-size: 15px; color: var(--muted); line-height: 1.8; }

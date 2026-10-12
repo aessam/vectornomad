@@ -29,6 +29,7 @@ const { Content } = await render(post);
         <h1>{post.data.title}</h1>
       </header>
     )}
+    {post.data.summary && <p class="lede">{post.data.summary}</p>}
     <div class="body"><Content /></div>
   </article>
 </Layout>
