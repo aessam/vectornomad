@@ -50,10 +50,15 @@ import '../styles/post.css';
             <span class="eyebrow">الملخص</span>
             <input name="summary" />
           </label>
-          <label class="field">
+          <div class="field">
             <span class="eyebrow">صورة الرأس</span>
-            <select name="image" dir="ltr"><option value="">بدون</option></select>
-          </label>
+            <div class="chip" id="headerChip">
+              <img id="headerThumb" alt="" hidden />
+              <span id="headerName">بدون. اختر من الصور في الجانب</span>
+              <button type="button" id="headerClear" class="x" aria-label="إزالة صورة الرأس" hidden>×</button>
+            </div>
+            <input type="hidden" name="image" />
+          </div>
         </div>
         <label class="field">
           <span class="eyebrow">النص (Markdown)</span>
@@ -130,13 +135,13 @@ import '../styles/post.css';
 
   function fill(d: { file: string; title: string; date: string; summary: string; image?: string; draft: boolean; body: string }) {
     field('file').value = d.file;
-    (field('image') as unknown as HTMLSelectElement).value = d.image ?? '';
+    field('image').value = d.image ?? '';
     field('title').value = d.title;
     field('date').value = d.date;
     field('summary').value = d.summary;
     (field('draft') as HTMLInputElement).checked = d.draft;
     field('body').value = d.body;
-    render();
+    setHeader(d.image ?? '');
   }
 
   async function load(file: string) {
@@ -168,7 +173,7 @@ import '../styles/post.css';
   const fmtAr = (iso: string) => { const d = new Date(iso + 'T00:00:00Z'); return Number.isNaN(d.getTime()) ? '' : new Intl.DateTimeFormat('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(d); };
   function render() {
     preview.innerHTML = marked.parse(field('body').value) as string;
-    const img = (field('image') as unknown as HTMLSelectElement).value;
+    const img = field('image').value;
     const title = field('title').value;
     const date = fmtAr(field('date').value);
     post.classList.toggle('has-hero', !!img);
@@ -187,7 +192,7 @@ import '../styles/post.css';
       title: field('title').value.trim(),
       date: field('date').value,
       summary: field('summary').value.trim(),
-      image: (field('image') as unknown as HTMLSelectElement).value,
+      image: field('image').value,
       draft: (field('draft') as HTMLInputElement).checked,
       body: field('body').value,
     };
@@ -210,7 +215,6 @@ import '../styles/post.css';
   field('body').addEventListener('input', render);
   field('title').addEventListener('input', render);
   field('date').addEventListener('input', render);
-  field('image').addEventListener('change', render);
   $('#new').addEventListener('click', fresh);
   openBtn.addEventListener('click', () => { if (current) window.open(`/ar/${current.replace(/\.md$/, '')}/`, '_blank'); });
   delBtn.addEventListener('click', async () => {
@@ -226,6 +230,19 @@ import '../styles/post.css';
 
   // Images
   const thumbs = $('#thumbs');
+  const headerThumb = $<HTMLImageElement>('#headerThumb');
+  const headerName = $('#headerName');
+  const headerClear = $<HTMLButtonElement>('#headerClear');
+  function setHeader(url: string, name?: string) {
+    field('image').value = url;
+    headerThumb.hidden = !url;
+    headerClear.hidden = !url;
+    if (url) headerThumb.src = url;
+    headerName.textContent = url ? (name ?? url.split('/').pop() ?? url) : 'بدون. اختر من الصور في الجانب';
+    thumbs.querySelectorAll<HTMLElement>('.thumb').forEach((el) => el.classList.toggle('is-header', el.dataset.url === url));
+    render();
+  }
+  headerClear.addEventListener('click', () => setHeader(''));
   const upload = $<HTMLInputElement>('#upload');
   function insertAtCursor(text: string) {
     const ta = field('body') as HTMLTextAreaElement;
@@ -242,20 +259,26 @@ import '../styles/post.css';
   async function refreshImages() {
     const imgs: { file: string; url: string }[] = await api('/editor/api/images');
     thumbs.innerHTML = '';
-    const sel = field('image') as unknown as HTMLSelectElement;
-    const keep = sel.value;
-    sel.innerHTML = '<option value="">بدون</option>' + imgs.map((im) => `<option value="${im.url}">${im.file}</option>`).join('');
-    sel.value = keep;
     for (const im of imgs) {
+      const wrap = document.createElement('div');
+      wrap.className = 'thumb' + (field('image').value === im.url ? ' is-header' : '');
+      wrap.dataset.url = im.url;
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'thumb';
-      b.title = im.file;
+      b.className = 'pick';
+      b.title = `إدراج ${im.file}`;
       const img = document.createElement('img');
       img.src = im.url; img.alt = ''; img.loading = 'lazy';
       b.appendChild(img);
       b.addEventListener('click', () => insertAtCursor(`![](${im.url})`));
-      thumbs.appendChild(b);
+      const h = document.createElement('button');
+      h.type = 'button';
+      h.className = 'as-header';
+      h.textContent = 'رأس';
+      h.title = `اجعلها صورة الرأس`;
+      h.addEventListener('click', () => setHeader(im.url, im.file));
+      wrap.append(b, h);
+      thumbs.appendChild(wrap);
     }
   }
   upload.addEventListener('change', async () => {
@@ -282,16 +305,23 @@ import '../styles/post.css';
   .side-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   h1 { font-size: 28px; }
   .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow: auto; }
-  .item { width: 100%; text-align: start; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; cursor: pointer; font: inherit; color: inherit; display: flex; flex-direction: column; gap: 2px; }
-  .item.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-  .item .t { font-size: 17px; font-weight: 700; }
-  .item .meta { font-family: var(--font-plex-mono); font-size: 11px; color: var(--meta); }
+  .list :global(.item) { width: 100%; text-align: start; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; cursor: pointer; font: inherit; color: inherit; display: flex; flex-direction: column; gap: 2px; }
+  .list :global(.item.active) { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .list :global(.item .t) { font-size: 17px; font-weight: 700; }
+  .list :global(.item .meta) { font-family: var(--font-plex-mono); font-size: 11px; color: var(--meta); }
   .images { display: flex; flex-direction: column; gap: 10px; }
   .images h2 { font-size: 20px; }
   .upload { cursor: pointer; }
   .thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  .thumb { padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--card); cursor: pointer; aspect-ratio: 1; }
-  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumbs :global(.thumb) { position: relative; border: 2px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--card); aspect-ratio: 1; }
+  .thumbs :global(.thumb.is-header) { border-color: var(--brand-coral); }
+  .thumbs :global(.thumb .pick) { padding: 0; border: 0; width: 100%; height: 100%; cursor: pointer; background: none; display: block; }
+  .thumbs :global(.thumb img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumbs :global(.thumb .as-header) { position: absolute; inset-inline-start: 4px; bottom: 4px; font: inherit; font-size: 12px; line-height: 1; padding: 5px 8px; border-radius: 999px; border: 0; background: rgba(14, 34, 68, 0.75); color: #fff; cursor: pointer; }
+  .thumbs :global(.thumb.is-header .as-header) { background: var(--brand-coral); }
+  .chip { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px 6px 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); font-size: 15px; color: var(--muted); }
+  .chip img { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; }
+  .chip .x { margin-inline-start: auto; border: 0; background: none; color: var(--brand-coral); font-size: 22px; cursor: pointer; min-width: 36px; min-height: 36px; }
   .hint { margin: 0; font-size: 15px; color: var(--muted); line-height: 1.8; }
   .form { display: flex; flex-direction: column; gap: 16px; }
   .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; }
@@ -304,7 +334,6 @@ import '../styles/post.css';
   textarea { resize: vertical; min-height: 420px; unicode-bidi: plaintext; text-align: start; }
   input[name='title'], input[name='summary'] { unicode-bidi: plaintext; text-align: start; }
   input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-  select { font: inherit; font-size: 15px; font-family: var(--font-plex-mono); color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; min-height: 52px; }
   /* The preview is the article, same stylesheet, same width, on the page ground. */
   .stage { padding: 24px; background: var(--bg); border: 1px dashed var(--line); border-radius: 16px; display: flex; justify-content: flex-start; }
   .stage .post { width: 100%; }
