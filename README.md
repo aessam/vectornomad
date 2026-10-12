@@ -23,3 +23,15 @@ npm run preview
 ```
 `npm run build` uses whatever is committed in `src/data/feeds/`.
 Parser smoke test against saved XML: `scripts/smoke-feeds.sh <dir>`.
+
+## Arabic editor (local only)
+```
+npm run dev
+```
+Open http://localhost:4322/editor. It lists `src/content/ar`, edits title, date, summary, draft and body in Amiri at the site's size, right-to-left, with a live preview. Save writes the Markdown file; ⌘S works. Images: upload or pick from `public/images/ar/`, click to insert at the cursor. The editor exists only under `astro dev`; the production build has no trace of it and nothing is exposed on the internet. Publish is still a commit and push.
+
+## Photos
+`scripts/prep-images.sh FILE...` resizes to 2000 px, converts to sRGB, strips all metadata (EXIF, GPS, ICC, IPTC) and embeds VectorNomad.com as creator and rights holder. Originals move to `brand/photo-originals/` (not in git). The editor's upload runs it automatically.
+
+## Social cards
+Every page carries Open Graph and Twitter tags. The images are rendered from the site's own `/og/` pages with headless Chrome by `scripts/og-images.sh` into `public/og/` (brand card as PNG, one JPEG per Arabic post) and committed. `scripts/publish.sh` runs it after the build, so cards stay in step with posts.

@@ -6,9 +6,10 @@ import { href } from '../lib/url';
 interface Props { entry: CollectionEntry<'ar'>; featured?: boolean }
 const { entry, featured = false } = Astro.props;
 const d = entry.data;
+const bg = d.image ? (d.image.startsWith('/') ? href(d.image) : d.image) : href('/brand/banner-blur.jpg');
 ---
 
-<Card tone="tint" lang="ar" dir="rtl">
+<Card tone="tint" lang="ar" dir="rtl" bg={bg}>
   <Fragment slot="eyebrow">{fmtDate(d.date, 'ar')}</Fragment>
   <h3 class="tile-title ar"><a href={href(`/ar/${entry.id}`)}>{d.title}</a></h3>
   {featured && d.summary && <p class="tile-sub">{d.summary}</p>}

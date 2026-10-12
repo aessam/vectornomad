@@ -1,0 +1,39 @@
+/* Arabic article. Shared by the page (src/pages/ar/[slug].astro) and the editor preview, so they render identically. */
+.post { max-width: 760px; display: flex; flex-direction: column; gap: 20px; }
+.post.has-hero { max-width: 860px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.post .plain { display: flex; flex-direction: column; gap: 12px; }
+.post [hidden] { display: none !important; } /* the editor toggles hero/plain with the hidden attribute */
+.post h1 { font-size: 40px; }
+
+/* Header image blends into the card: the bottom of the image fades out, the title sits in the faded zone. */
+.post .hero { position: relative; }
+.post .hero img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%); mask-image: linear-gradient(to bottom, #000 40%, transparent 100%); }
+.post .hero-text { position: absolute; inset-inline: 32px; bottom: 0; display: flex; flex-direction: column; gap: 8px; }
+.post .hero-text h1 { font-size: 44px; line-height: 1.35; text-shadow: 0 1px 0 var(--card); }
+.post .hero-text .meta { color: var(--muted); }
+.post.has-hero .body { padding: 8px 32px 36px; }
+
+/* Lede: the summary, under the title, before the body. */
+.post .lede { margin: 0; font-size: 23px; line-height: 1.8; color: var(--muted); unicode-bidi: plaintext; text-align: start; }
+.post.has-hero .lede { padding: 4px 32px 0; }
+.post .body { font-size: 21px; line-height: 2; }
+/* Every block and list item picks its own direction from its first strong character. */
+.post .body > *, .post .body li, .post .body code { unicode-bidi: plaintext; text-align: start; }
+.post .body ul, .post .body ol { padding: 0; }
+.post .body li { list-style-position: inside; }
+.post .body p { margin: 0 0 1.2em; }
+.post .body h2 { font-size: 28px; margin: 1.4em 0 0.6em; }
+.post .body blockquote { margin: 0 0 1.2em; padding-inline-start: 20px; border-inline-start: 3px solid var(--line); color: var(--muted); }
+.post .body img { border-radius: 14px; margin: 0 0 1.2em; }
+.post .body pre { direction: ltr; text-align: left; font-family: var(--font-plex-mono); font-size: 15px; line-height: 1.6; background: var(--tint); border-radius: 12px; padding: 16px 20px; overflow-x: auto; margin: 0 0 1.2em; }
+.post .body code { font-family: var(--font-plex-mono); font-size: 0.85em; }
+
+@media (max-width: 560px) {
+  .post h1 { font-size: 32px; }
+  .post .hero-text h1 { font-size: 30px; }
+  .post .hero-text { inset-inline: 20px; }
+  .post.has-hero .body { padding: 8px 20px 28px; }
+  .post.has-hero .lede { padding: 4px 20px 0; }
+  .post .lede { font-size: 20px; }
+  .post .body { font-size: 19px; }
+}

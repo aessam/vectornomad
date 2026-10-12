@@ -19,7 +19,7 @@ command -v node >/dev/null || { echo "node missing" >&2; exit 1; }
 [[ -d node_modules ]] || { echo "run npm install first" >&2; exit 1; }
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "not a git repo" >&2; exit 1; }
 branch=$(git rev-parse --abbrev-ref HEAD)
-[[ "$branch" == "main" ]] || { echo "on '$branch', publish from main" >&2; exit 1; }
+[[ "$branch" != "HEAD" ]] || { echo "detached HEAD, check out a branch first" >&2; exit 1; }
 
 # Gate 2: nothing unrelated is half-done. Only the feed snapshot may be dirty.
 dirty=$(git status --porcelain | grep -v '^.. src/data/feeds/' || true)
@@ -28,22 +28,24 @@ dirty=$(git status --porcelain | grep -v '^.. src/data/feeds/' || true)
 # Fetch. Loud on failure; a feed that fails keeps its committed snapshot (see fetch-feeds.mjs).
 npm run --silent fetch
 
-# Build locally before anything is pushed.
+# Build locally before anything is pushed, then render social cards from that build.
 npm run --silent build >/dev/null
 echo "build ok"
+scripts/og-images.sh --no-build
 
-# Commit only if the snapshot changed.
-if git diff --quiet -- src/data/feeds; then
+# Commit only if the snapshot or the cards changed.
+git add -A public/og
+if git diff --quiet -- src/data/feeds && git diff --cached --quiet -- public/og; then
   echo "feeds unchanged, nothing to publish"
   exit 0
 fi
-git --no-pager diff --stat -- src/data/feeds
-git add src/data/feeds
+git --no-pager diff --stat -- src/data/feeds public/og
+git add src/data/feeds public/og
 git commit -q -m "$msg"
 echo "committed: $msg"
 
 if [[ $push -eq 1 ]]; then
-  git push origin main
+  git push origin "$branch"
   echo "pushed. CI builds and deploys from the committed snapshot."
 else
   echo "not pushed (--no-push)"

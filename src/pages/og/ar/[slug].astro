@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import OgFrame from '../../../layouts/OgFrame.astro';
+import { fmtDate } from '../../../lib/format';
+import { href } from '../../../lib/url';
+import { site } from '../../../../site.config.mjs';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('ar', (e) => !e.data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+const { post } = Astro.props;
+const d = post.data;
+const img = d.image ? (d.image.startsWith('/') ? href(d.image) : d.image) : href('/brand/banner-blur.jpg');
+const host = new URL(site.url).host;
+---
+
+<OgFrame lang="ar">
+  <div class="card" style={`--seal:url(${href('/brand/seal-mask.png')})`}>
+    <img class="bg" src={img} alt="" />
+    <div class="shade"></div>
+    <div class="text">
+      <div class="meta">{fmtDate(d.date, 'ar')}</div>
+      <h1>{d.title}</h1>
+      {d.summary && <p class="lede">{d.summary}</p>}
+    </div>
+    <div class="brand"><span class="seal"></span><span class="host">{host}</span></div>
+  </div>
+</OgFrame>
+
+<style>
+  .card { position: relative; width: 1200px; height: 630px; overflow: hidden; background: #184377; color: #fff; font-family: var(--font-amiri); }
+  .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .shade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(14, 34, 68, 0.96) 0%, rgba(14, 34, 68, 0.75) 38%, rgba(14, 34, 68, 0) 70%); }
+  .text { position: absolute; inset-inline: 72px; bottom: 56px; display: flex; flex-direction: column; gap: 10px; max-width: 1056px; }
+  .meta { font-family: var(--font-plex-mono); font-size: 20px; color: #9ad5ce; letter-spacing: 0.06em; }
+  h1 { margin: 0; font-size: 66px; line-height: 1.35; font-weight: 700; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .lede { margin: 0; font-size: 30px; line-height: 1.6; color: #dbe7f3; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .brand { position: absolute; top: 40px; inset-inline-start: 64px; display: flex; align-items: center; gap: 14px; direction: ltr; }
+  .seal { width: 64px; height: 64px; background: #fff; -webkit-mask: var(--seal) center / contain no-repeat; mask: var(--seal) center / contain no-repeat; -webkit-mask-mode: luminance; mask-mode: luminance; }
+  .host { font-family: var(--font-plex-mono); font-size: 18px; color: #fff; letter-spacing: 0.08em; text-transform: uppercase; text-shadow: 0 1px 8px rgba(0,0,0,.5); }
+</style>

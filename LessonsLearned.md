@@ -18,3 +18,9 @@ A `curl -I` on medium.com looked like a block. A GET with a browser user agent r
 ## 2026-10-11 First deploy: environment branch policy and Cloudflare proxy
 1. The `github-pages` environment was created with a branch policy allowing only `development`, so the deploy job was rejected for `main`. Fix: add `main` to the environment's deployment branch policies (API: POST .../environments/github-pages/deployment-branch-policies).
 2. With Cloudflare's proxy on, GitHub cannot verify the domain and serves its `*.github.io` wildcard for the hostname, which browsers flag as unsafe. Proxy off alone was not enough: GitHub's checker kept a stale "proxied" answer. Removing and re-adding the custom domain forced a fresh check; the certificate went authorization_pending → approved in under a minute and reached the edge a minute later. A CDN-cached 404 for `/` from the proxied window cleared on its own after max-age 600.
+
+## 2026-10-12 Dev content store ignores a schema change
+Adding `image` to the `ar` schema while `astro dev` was running left existing entries without the field. A restart did not help, and neither did re-saving the file: `.astro/data-store.json` kept the old parsed data. A production build re-synced and was correct. Fix in dev: remove `.astro/` and restart. The date shift (11th shown for a post dated the 12th) was build-machine timezone; `fmtDate` now formats in UTC.
+
+## 2026-10-12 `astro preview` ignores SIGTERM and reparents to launchd
+Backgrounded from a script, the preview server survived `kill`, `kill -- -pgid` and the script's exit, holding the port for the next run. Cleanup now sends TERM, waits half a second, then SIGKILLs whatever still listens on the port. Also: the astro binary is `node_modules/astro/bin/astro.mjs`, not `astro.js`.

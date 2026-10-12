@@ -1,0 +1,23 @@
+---
+// 1200x630 frame for social cards. Screenshotted by scripts/og-images.sh, never linked from the site.
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+interface Props { lang?: 'en' | 'ar' }
+const { lang = 'en' } = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <Font cssVariable="--font-amiri" preload />
+    <Font cssVariable="--font-crimson" preload />
+    <Font cssVariable="--font-plex-mono" preload />
+    <style>
+      html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #184377; }
+      body { display: block; min-height: 0; }
+    </style>
+  </head>
+  <body><slot /></body>
+</html>

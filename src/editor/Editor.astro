@@ -1,0 +1,380 @@
+---
+// Dev-only. Served by src/editor/integration.mjs under `astro dev`, never built.
+import Layout from '../layouts/Layout.astro';
+import '../styles/post.css';
+---
+
+<Layout title="المحرر" lang="ar" description="محرر المقالات العربية، يعمل محلياً فقط.">
+  <div class="ed" id="ed">
+    <aside class="side">
+      <div class="side-head">
+        <h1>المقالات</h1>
+        <button type="button" class="btn" id="new">مقال جديد</button>
+      </div>
+      <ul class="list" id="list" aria-label="المقالات"></ul>
+      <div class="images">
+        <div class="side-head">
+          <h2>الصور</h2>
+          <label class="btn-ghost upload">رفع صورة<input type="file" id="upload" accept="image/*" hidden /></label>
+        </div>
+        <div class="thumbs" id="thumbs" aria-label="الصور المتاحة"></div>
+        <p class="hint">اضغط صورة لإدراجها مكان المؤشر. الملفات في <code dir="ltr">public/images/ar</code>.</p>
+      </div>
+      <p class="hint">يعمل هذا المحرر على جهازك فقط. الحفظ يكتب ملفاً في <code dir="ltr">src/content/ar</code>، والنشر يكون بـ commit و push كالمعتاد.</p>
+    </aside>
+
+    <section class="main" aria-label="التحرير">
+      <form id="form" class="form" autocomplete="off">
+        <div class="row">
+          <label class="field grow">
+            <span class="eyebrow">العنوان</span>
+            <input name="title" required />
+          </label>
+          <label class="field">
+            <span class="eyebrow">التاريخ</span>
+            <input name="date" type="date" required dir="ltr" />
+          </label>
+        </div>
+        <div class="row">
+          <label class="field grow">
+            <span class="eyebrow">اسم الملف (حروف لاتينية)</span>
+            <input name="file" dir="ltr" placeholder="2026-10-11-my-post.md" pattern="[a-z0-9][a-z0-9\-]*\.md" required />
+          </label>
+          <label class="field check">
+            <input name="draft" type="checkbox" />
+            <span>مسودّة (لا تُنشر)</span>
+          </label>
+        </div>
+        <div class="row">
+          <label class="field grow">
+            <span class="eyebrow">الملخص</span>
+            <input name="summary" />
+          </label>
+          <div class="field">
+            <span class="eyebrow">صورة الرأس</span>
+            <div class="chip" id="headerChip">
+              <img id="headerThumb" alt="" hidden />
+              <span id="headerName">بدون. اختر من الصور في الجانب</span>
+              <button type="button" id="headerClear" class="x" aria-label="إزالة صورة الرأس" hidden>×</button>
+            </div>
+            <input type="hidden" name="image" />
+          </div>
+        </div>
+        <label class="field">
+          <span class="eyebrow">النص (Markdown)</span>
+          <textarea name="body" rows="18" spellcheck="true"></textarea>
+        </label>
+        <div class="field">
+          <span class="eyebrow">المعاينة، كما ستظهر على الموقع</span>
+          <div class="stage">
+            <article class="post" id="previewPost">
+              <header class="hero" id="previewHero" hidden>
+                <img id="previewHeroImg" alt="" />
+                <div class="hero-text"><div class="meta" id="previewDateHero"></div><h1 id="previewTitleHero"></h1></div>
+              </header>
+              <header class="plain" id="previewPlain">
+                <div class="meta" id="previewDate"></div>
+                <h1 id="previewTitle"></h1>
+              </header>
+              <p class="lede" id="previewLede" hidden></p>
+              <div class="body" id="preview"></div>
+            </article>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn" id="save">حفظ <kbd dir="ltr">⌘S</kbd></button>
+          <button type="button" class="btn-ghost" id="open" disabled>فتح الصفحة</button>
+          <button type="button" class="btn-ghost danger" id="delete" disabled>حذف</button>
+          <span class="status" id="status" aria-live="polite"></span>
+        </div>
+      </form>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  import { marked } from 'marked';
+
+  const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
+  const list = $('#list');
+  const form = $<HTMLFormElement>('#form');
+  const preview = $('#preview');
+  const status = $('#status');
+  const openBtn = $<HTMLButtonElement>('#open');
+  const delBtn = $<HTMLButtonElement>('#delete');
+  const field = (n: string) => form.elements.namedItem(n) as HTMLInputElement | HTMLTextAreaElement;
+  let current: string | null = null; // file name currently loaded, null = new
+  const KEY = 'editor.current';
+  const remember = () => { if (current) sessionStorage.setItem(KEY, current); else sessionStorage.removeItem(KEY); };
+
+  // Rough Arabic → Latin for URLs. Consonant skeleton, readable enough, always ASCII.
+  const AR: Record<string, string> = { 'ا':'a','أ':'a','إ':'a','آ':'a','ء':'','ؤ':'o','ئ':'e','ب':'b','ت':'t','ث':'th','ج':'j','ح':'h','خ':'kh','د':'d','ذ':'dh','ر':'r','ز':'z','س':'s','ش':'sh','ص':'s','ض':'d','ط':'t','ظ':'z','ع':'a','غ':'gh','ف':'f','ق':'q','ك':'k','ل':'l','م':'m','ن':'n','ه':'h','ة':'h','و':'w','ي':'y','ى':'a','ـ':'' };
+  function slugify(title: string): string {
+    const s = [...title.normalize('NFKD')].map((ch) => AR[ch] ?? (/[\u064B-\u0652\u0670]/.test(ch) ? '' : ch)).join('')
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+    return s;
+  }
+  let fileTouched = false;
+  function suggestFile() {
+    if (fileTouched || current) return;
+    const slug = slugify(field('title').value) || 'post';
+    field('file').value = `${field('date').value || today()}-${slug}.md`;
+  }
+  const say = (msg: string, bad = false) => { status.textContent = msg; status.classList.toggle('bad', bad); };
+  const today = () => new Date().toISOString().slice(0, 10);
+
+  async function api(path: string, init?: RequestInit) {
+    const r = await fetch(path, init);
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error ?? r.statusText);
+    return data;
+  }
+
+  async function refresh() {
+    const docs: { file: string; title: string; date: string; draft: boolean }[] = await api('/editor/api');
+    list.innerHTML = '';
+    for (const d of docs) {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'item' + (d.file === current ? ' active' : '');
+      b.innerHTML = `<span class="t"></span><span class="meta"></span>`;
+      (b.firstElementChild as HTMLElement).textContent = d.title || d.file;
+      (b.lastElementChild as HTMLElement).textContent = `${d.date}${d.draft ? ' · مسودّة' : ''}`;
+      b.addEventListener('click', () => load(d.file));
+      li.appendChild(b);
+      list.appendChild(li);
+    }
+  }
+
+  function fill(d: { file: string; title: string; date: string; summary: string; image?: string; draft: boolean; body: string }) {
+    field('file').value = d.file;
+    field('image').value = d.image ?? '';
+    field('title').value = d.title;
+    field('date').value = d.date;
+    field('summary').value = d.summary;
+    (field('draft') as HTMLInputElement).checked = d.draft;
+    field('body').value = d.body;
+    setHeader(d.image ?? '');
+  }
+
+  async function load(file: string) {
+    const d = await api(`/editor/api?file=${encodeURIComponent(file)}`);
+    current = file;
+    remember();
+    fill(d);
+    openBtn.disabled = false;
+    delBtn.disabled = false;
+    say(`فُتح ${file}`);
+    refresh();
+  }
+
+  function fresh() {
+    current = null;
+    fileTouched = false;
+    remember();
+    fill({ file: `${today()}-.md`, title: '', date: today(), summary: '', image: '', draft: false, body: '' });
+    openBtn.disabled = true;
+    delBtn.disabled = true;
+    field('title').focus();
+    say('مقال جديد');
+    refresh();
+  }
+
+  const post = $('#previewPost');
+  const hero = $('#previewHero');
+  const plain = $('#previewPlain');
+  const heroImg = $<HTMLImageElement>('#previewHeroImg');
+  const fmtAr = (iso: string) => { const d = new Date(iso + 'T00:00:00Z'); return Number.isNaN(d.getTime()) ? '' : new Intl.DateTimeFormat('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(d); };
+  function render() {
+    preview.innerHTML = marked.parse(field('body').value) as string;
+    const img = field('image').value;
+    const title = field('title').value;
+    const date = fmtAr(field('date').value);
+    post.classList.toggle('has-hero', !!img);
+    hero.hidden = !img;
+    plain.hidden = !!img;
+    if (img) heroImg.src = img;
+    $('#previewTitleHero').textContent = title;
+    $('#previewTitle').textContent = title;
+    $('#previewDateHero').textContent = date;
+    $('#previewDate').textContent = date;
+    const lede = $('#previewLede');
+    lede.textContent = field('summary').value;
+    lede.hidden = !field('summary').value.trim();
+  }
+
+  async function save() {
+    // A date-only name gets a slug from the title. If there is no title yet, say so instead of writing /ar/2026-10-12-/.
+    if (/^\d{4}-\d{2}-\d{2}-?\.md$/.test(field('file').value.trim())) {
+      const slug = slugify(field('title').value);
+      if (!slug) { say('اكتب عنواناً أولاً حتى يُشتق اسم الملف', true); field('title').focus(); return; }
+      field('file').value = `${field('date').value || today()}-${slug}.md`;
+    }
+    const d = {
+      file: field('file').value.trim(),
+      title: field('title').value.trim(),
+      date: field('date').value,
+      summary: field('summary').value.trim(),
+      image: field('image').value,
+      draft: (field('draft') as HTMLInputElement).checked,
+      body: field('body').value,
+    };
+    try {
+      const r = await api('/editor/api', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(d) });
+      const renamed = current && current !== r.file;
+      if (renamed) await api(`/editor/api?file=${encodeURIComponent(current)}`, { method: 'DELETE' });
+      current = r.file;
+      remember();
+      openBtn.disabled = false;
+      delBtn.disabled = false;
+      say(renamed ? `حُفظ وأُعيدت التسمية إلى ${r.file}` : `حُفظ ${r.file}`);
+      refresh();
+    } catch (e) {
+      say((e as Error).message, true);
+    }
+  }
+
+  form.addEventListener('submit', (e) => { e.preventDefault(); save(); });
+  document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); save(); } });
+  field('body').addEventListener('input', render);
+  field('title').addEventListener('input', () => { suggestFile(); render(); });
+  field('file').addEventListener('input', () => { fileTouched = true; });
+  field('date').addEventListener('input', render);
+  field('summary').addEventListener('input', render);
+  $('#new').addEventListener('click', fresh);
+  openBtn.addEventListener('click', () => { if (current) window.open(`/ar/${current.replace(/\.md$/, '')}/`, '_blank'); });
+  delBtn.addEventListener('click', async () => {
+    if (!current || !confirm(`حذف ${current}؟`)) return;
+    await api(`/editor/api?file=${encodeURIComponent(current)}`, { method: 'DELETE' });
+    say(`حُذف ${current}`);
+    fresh();
+  });
+
+  // Saving a new file makes the dev server reload the page. Come back to what was open.
+  const last = sessionStorage.getItem(KEY);
+  refresh().then(() => (last ? load(last).catch(fresh) : fresh()));
+
+  // Images
+  const thumbs = $('#thumbs');
+  const headerThumb = $<HTMLImageElement>('#headerThumb');
+  const headerName = $('#headerName');
+  const headerClear = $<HTMLButtonElement>('#headerClear');
+  let known = new Set<string>(); // image urls that exist on disk, from the last listing
+  function setHeader(url: string, name?: string) {
+    field('image').value = url;
+    headerThumb.hidden = !url;
+    headerClear.hidden = !url;
+    if (url) headerThumb.src = url;
+    const missing = !!url && known.size > 0 && !known.has(url);
+    headerName.textContent = !url ? 'بدون. اختر من الصور في الجانب' : missing ? `الصورة غير موجودة: ${url.split('/').pop()}. اختر غيرها` : (name ?? url.split('/').pop() ?? url);
+    $('#headerChip').classList.toggle('bad', missing);
+    thumbs.querySelectorAll<HTMLElement>('.thumb').forEach((el) => el.classList.toggle('is-header', el.dataset.url === url));
+    render();
+  }
+  headerClear.addEventListener('click', () => setHeader(''));
+  const upload = $<HTMLInputElement>('#upload');
+  function insertAtCursor(text: string) {
+    const ta = field('body') as HTMLTextAreaElement;
+    const [a, b] = [ta.selectionStart, ta.selectionEnd];
+    const before = ta.value.slice(0, a), after = ta.value.slice(b);
+    // Always leave a blank line above, or Markdown folds the image into the previous block.
+    const pad = !before ? '' : before.endsWith('\n\n') ? '' : before.endsWith('\n') ? '\n' : '\n\n';
+    ta.value = before + pad + text + '\n\n' + after;
+    const pos = (before + pad + text).length;
+    ta.setSelectionRange(pos, pos);
+    ta.focus();
+    render();
+  }
+  async function refreshImages() {
+    const imgs: { file: string; url: string }[] = await api('/editor/api/images');
+    known = new Set(imgs.map((im) => im.url));
+    thumbs.innerHTML = '';
+    for (const im of imgs) {
+      const wrap = document.createElement('div');
+      wrap.className = 'thumb' + (field('image').value === im.url ? ' is-header' : '');
+      wrap.dataset.url = im.url;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'pick';
+      b.title = `إدراج ${im.file}`;
+      const img = document.createElement('img');
+      img.src = im.url; img.alt = ''; img.loading = 'lazy';
+      b.appendChild(img);
+      b.addEventListener('click', () => insertAtCursor(`![](${im.url})`));
+      const h = document.createElement('button');
+      h.type = 'button';
+      h.className = 'as-header';
+      h.textContent = 'رأس';
+      h.title = `اجعلها صورة الرأس`;
+      h.addEventListener('click', () => setHeader(im.url, im.file));
+      wrap.append(b, h);
+      thumbs.appendChild(wrap);
+    }
+    if (field('image').value) setHeader(field('image').value);
+  }
+  upload.addEventListener('change', async () => {
+    const f = upload.files?.[0];
+    if (!f) return;
+    const fd = new FormData();
+    fd.append('file', f);
+    try {
+      const r = await api('/editor/api/images', { method: 'POST', body: fd });
+      say(`رُفعت ${r.file}`);
+      await refreshImages();
+      insertAtCursor(`![](${r.url})`);
+    } catch (e) {
+      say((e as Error).message, true);
+    }
+    upload.value = '';
+  });
+  refreshImages();
+</script>
+
+<style>
+  .ed { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 32px; align-items: start; }
+  .side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 24px; }
+  .side-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  h1 { font-size: 28px; }
+  .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow: auto; }
+  .list :global(.item) { width: 100%; text-align: start; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; cursor: pointer; font: inherit; color: inherit; display: flex; flex-direction: column; gap: 2px; }
+  .list :global(.item.active) { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .list :global(.item .t) { font-size: 17px; font-weight: 700; }
+  .list :global(.item .meta) { font-family: var(--font-plex-mono); font-size: 11px; color: var(--meta); }
+  .images { display: flex; flex-direction: column; gap: 10px; }
+  .images h2 { font-size: 20px; }
+  .upload { cursor: pointer; }
+  .thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .thumbs :global(.thumb) { position: relative; border: 2px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--card); aspect-ratio: 1; }
+  .thumbs :global(.thumb.is-header) { border-color: var(--brand-coral); }
+  .thumbs :global(.thumb .pick) { padding: 0; border: 0; width: 100%; height: 100%; cursor: pointer; background: none; display: block; }
+  .thumbs :global(.thumb img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumbs :global(.thumb .as-header) { position: absolute; inset-inline-start: 4px; bottom: 4px; font: inherit; font-size: 12px; line-height: 1; padding: 5px 8px; border-radius: 999px; border: 0; background: rgba(14, 34, 68, 0.75); color: #fff; cursor: pointer; }
+  .thumbs :global(.thumb.is-header .as-header) { background: var(--brand-coral); }
+  .chip { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px 6px 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); font-size: 15px; color: var(--muted); }
+  .chip.bad { border-color: var(--brand-coral); color: var(--brand-coral); }
+  .chip img { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; }
+  .chip .x { margin-inline-start: auto; border: 0; background: none; color: var(--brand-coral); font-size: 22px; cursor: pointer; min-width: 36px; min-height: 36px; }
+  .hint { margin: 0; font-size: 15px; color: var(--muted); line-height: 1.8; }
+  .form { display: flex; flex-direction: column; gap: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.grow { flex: 1 1 240px; }
+  .field.check { flex-direction: row; align-items: center; gap: 10px; min-height: 48px; font-size: 17px; white-space: nowrap; }
+  .field.check input { width: 22px; height: 22px; padding: 0; accent-color: var(--accent); }
+  input, textarea { font: inherit; font-size: 21px; line-height: 1.9; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; width: 100%; box-sizing: border-box; }
+  input[dir='ltr'] { font-family: var(--font-plex-mono); font-size: 15px; }
+  textarea { resize: vertical; min-height: 420px; unicode-bidi: plaintext; text-align: start; }
+  input[name='title'], input[name='summary'] { unicode-bidi: plaintext; text-align: start; }
+  input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  /* The preview is the article, same stylesheet, same width, on the page ground. */
+  .stage { padding: 24px; background: var(--bg); border: 1px dashed var(--line); border-radius: 16px; display: flex; justify-content: flex-start; }
+  .stage .post { width: 100%; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .btn, .btn-ghost { cursor: pointer; font: inherit; font-size: 17px; }
+  .btn kbd { font-family: var(--font-plex-mono); font-size: 12px; opacity: 0.8; margin-inline-start: 8px; }
+  .danger { color: var(--brand-coral); }
+  .status { font-size: 16px; color: var(--muted); }
+  .status.bad { color: #fff; background: var(--brand-coral); padding: 8px 14px; border-radius: 999px; font-weight: 700; }
+  @media (max-width: 900px) { .ed { grid-template-columns: 1fr; } .side { position: static; } }
+</style>
