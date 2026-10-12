@@ -21,3 +21,6 @@ A `curl -I` on medium.com looked like a block. A GET with a browser user agent r
 
 ## 2026-10-12 Dev content store ignores a schema change
 Adding `image` to the `ar` schema while `astro dev` was running left existing entries without the field. A restart did not help, and neither did re-saving the file: `.astro/data-store.json` kept the old parsed data. A production build re-synced and was correct. Fix in dev: remove `.astro/` and restart. The date shift (11th shown for a post dated the 12th) was build-machine timezone; `fmtDate` now formats in UTC.
+
+## 2026-10-12 `astro preview` ignores SIGTERM and reparents to launchd
+Backgrounded from a script, the preview server survived `kill`, `kill -- -pgid` and the script's exit, holding the port for the next run. Cleanup now sends TERM, waits half a second, then SIGKILLs whatever still listens on the port. Also: the astro binary is `node_modules/astro/bin/astro.mjs`, not `astro.js`.
