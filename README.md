@@ -29,3 +29,6 @@ Parser smoke test against saved XML: `scripts/smoke-feeds.sh <dir>`.
 npm run dev
 ```
 Open http://localhost:4322/editor. It lists `src/content/ar`, edits title, date, summary, draft and body in Amiri at the site's size, right-to-left, with a live preview. Save writes the Markdown file; ⌘S works. Images: upload or pick from `public/images/ar/`, click to insert at the cursor. The editor exists only under `astro dev`; the production build has no trace of it and nothing is exposed on the internet. Publish is still a commit and push.
+
+## Photos
+`scripts/prep-images.sh FILE...` resizes to 2000 px, converts to sRGB, strips all metadata (EXIF, GPS, ICC, IPTC) and embeds VectorNomad.com as creator and rights holder. Originals move to `brand/photo-originals/` (not in git). The editor's upload runs it automatically.

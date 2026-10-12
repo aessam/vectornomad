@@ -1,5 +1,8 @@
 import type { APIRoute } from 'astro';
 import { readdir, writeFile, stat, unlink } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+const run = promisify(execFile);
 import { resolve, basename, extname } from 'node:path';
 import { sameOrigin } from './guard';
 
@@ -35,9 +38,18 @@ export const POST: APIRoute = async ({ request }) => {
   if (!(f instanceof File)) return json({ error: 'no file' }, 400);
   const { ext, file } = safeName(f.name);
   if (!OK.has(ext)) return json({ error: `unsupported type ${ext || '(none)'}` }, 400);
-  if (f.size > 8 * 1024 * 1024) return json({ error: 'larger than 8 MB, resize it first' }, 400);
-  await writeFile(resolve(DIR, file), Buffer.from(await f.arrayBuffer()));
-  return json({ ok: true, file, url: `/images/ar/${file}` });
+  if (f.size > 40 * 1024 * 1024) return json({ error: 'larger than 40 MB' }, 400);
+  const raw = resolve(DIR, file);
+  await writeFile(raw, Buffer.from(await f.arrayBuffer()));
+  // Resize, strip metadata (GPS included), set VectorNomad.com as author. Originals go to brand/photo-originals.
+  try {
+    await run('bash', ['scripts/prep-images.sh', raw]);
+  } catch (e) {
+    await unlink(raw).catch(() => {});
+    return json({ error: `prep-images failed: ${(e as { stderr?: string }).stderr ?? (e as Error).message}` }, 500);
+  }
+  const final = `${basename(file, extname(file))}.jpg`;
+  return json({ ok: true, file: final, url: `/images/ar/${final}` });
 };
 
 export const DELETE: APIRoute = async ({ url, request }) => {
