@@ -23,8 +23,11 @@ const { Content } = await render(post);
   .post { max-width: 720px; display: flex; flex-direction: column; gap: 20px; }
   h1 { font-size: 40px; }
   .body { font-size: 21px; line-height: 2; }
-  /* Blocks stay RTL. Only code takes its own direction; an English word inside Arabic prose is handled by bidi. */
-  .body :global(code) { unicode-bidi: plaintext; }
+  /* Every block and list item picks its own direction from its first strong character,
+     so an English paragraph inside an Arabic post reads left-to-right and sits left. */
+  .body :global(> *), .body :global(li), .body :global(code) { unicode-bidi: plaintext; text-align: start; }
+  .body :global(ul), .body :global(ol) { padding: 0; }
+  .body :global(li) { list-style-position: inside; } /* marker follows the item's own direction */
   .body :global(p) { margin: 0 0 1.2em; }
   .body :global(img) { border-radius: 14px; margin: 0 0 1.2em; }
   .body :global(pre) { direction: ltr; text-align: left; font-family: var(--font-plex-mono); font-size: 15px; line-height: 1.6; background: var(--tint); border-radius: 12px; padding: 16px 20px; overflow-x: auto; margin: 0 0 1.2em; }

@@ -250,6 +250,9 @@ import Layout from '../layouts/Layout.astro';
   .thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .thumb { padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--card); cursor: pointer; aspect-ratio: 1; }
   .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .preview :global(> *), .preview :global(li) { unicode-bidi: plaintext; text-align: start; }
+  .preview :global(ul), .preview :global(ol) { padding: 0; }
+  .preview :global(li) { list-style-position: inside; }
   .preview :global(pre) { direction: ltr; text-align: left; font-family: var(--font-plex-mono); font-size: 15px; background: var(--tint); border-radius: 12px; padding: 16px 20px; overflow-x: auto; }
   .preview :global(code) { unicode-bidi: plaintext; font-family: var(--font-plex-mono); font-size: 0.85em; }
   .preview :global(img) { border-radius: 12px; }
@@ -262,7 +265,8 @@ import Layout from '../layouts/Layout.astro';
   .field.check input { width: 22px; height: 22px; padding: 0; accent-color: var(--accent); }
   input, textarea { font: inherit; font-size: 21px; line-height: 1.9; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; width: 100%; box-sizing: border-box; }
   input[dir='ltr'] { font-family: var(--font-plex-mono); font-size: 15px; }
-  textarea { resize: vertical; min-height: 420px; }
+  textarea { resize: vertical; min-height: 420px; unicode-bidi: plaintext; text-align: start; }
+  input[name='title'], input[name='summary'] { unicode-bidi: plaintext; text-align: start; }
   input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   .split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
   .preview { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 24px; min-height: 420px; font-size: 21px; line-height: 2; }
