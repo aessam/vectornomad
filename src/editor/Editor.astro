@@ -205,7 +205,12 @@ import '../styles/post.css';
   }
 
   async function save() {
-    if (/^\d{4}-\d{2}-\d{2}-?\.md$/.test(field('file').value.trim())) { say('اسم الملف يحتاج كلمة بعد التاريخ', true); field('file').focus(); return; }
+    // A date-only name gets a slug from the title. If there is no title yet, say so instead of writing /ar/2026-10-12-/.
+    if (/^\d{4}-\d{2}-\d{2}-?\.md$/.test(field('file').value.trim())) {
+      const slug = slugify(field('title').value);
+      if (!slug) { say('اكتب عنواناً أولاً حتى يُشتق اسم الملف', true); field('title').focus(); return; }
+      field('file').value = `${field('date').value || today()}-${slug}.md`;
+    }
     const d = {
       file: field('file').value.trim(),
       title: field('title').value.trim(),
@@ -217,12 +222,13 @@ import '../styles/post.css';
     };
     try {
       const r = await api('/editor/api', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(d) });
-      if (current && current !== r.file) await api(`/editor/api?file=${encodeURIComponent(current)}`, { method: 'DELETE' }); // renamed
+      const renamed = current && current !== r.file;
+      if (renamed) await api(`/editor/api?file=${encodeURIComponent(current)}`, { method: 'DELETE' });
       current = r.file;
       remember();
       openBtn.disabled = false;
       delBtn.disabled = false;
-      say(`حُفظ ${r.file}`);
+      say(renamed ? `حُفظ وأُعيدت التسمية إلى ${r.file}` : `حُفظ ${r.file}`);
       refresh();
     } catch (e) {
       say((e as Error).message, true);
@@ -369,6 +375,6 @@ import '../styles/post.css';
   .btn kbd { font-family: var(--font-plex-mono); font-size: 12px; opacity: 0.8; margin-inline-start: 8px; }
   .danger { color: var(--brand-coral); }
   .status { font-size: 16px; color: var(--muted); }
-  .status.bad { color: var(--brand-coral); }
+  .status.bad { color: #fff; background: var(--brand-coral); padding: 8px 14px; border-radius: 999px; font-weight: 700; }
   @media (max-width: 900px) { .ed { grid-template-columns: 1fr; } .side { position: static; } }
 </style>
