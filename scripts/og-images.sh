@@ -20,7 +20,13 @@ set -m
 node node_modules/astro/bin/astro.mjs preview --port $PORT --host 127.0.0.1 >/tmp/og-preview.log 2>&1 &
 pid=$!
 set +m
-cleanup() { kill -- -"$pid" 2>/dev/null || kill "$pid" 2>/dev/null || true; }
+cleanup() {
+  kill -- -"$pid" 2>/dev/null || kill "$pid" 2>/dev/null || true
+  # astro preview ignores SIGTERM. Whatever still listens on our port is ours: give it a moment, then SIGKILL.
+  sleep 0.5
+  local left; left=$(lsof -tiTCP:$PORT -sTCP:LISTEN 2>/dev/null || true)
+  [[ -z "$left" ]] || kill -9 $left 2>/dev/null || true
+}
 trap cleanup EXIT
 for i in $(seq 1 40); do curl -s -o /dev/null "http://127.0.0.1:$PORT/og/site/" && break; sleep 0.25; done
 curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/og/site/" | grep -q 200 || { echo "preview did not start" >&2; cat /tmp/og-preview.log >&2; exit 1; }
