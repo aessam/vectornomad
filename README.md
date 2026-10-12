@@ -32,3 +32,6 @@ Open http://localhost:4322/editor. It lists `src/content/ar`, edits title, date,
 
 ## Photos
 `scripts/prep-images.sh FILE...` resizes to 2000 px, converts to sRGB, strips all metadata (EXIF, GPS, ICC, IPTC) and embeds VectorNomad.com as creator and rights holder. Originals move to `brand/photo-originals/` (not in git). The editor's upload runs it automatically.
+
+## Social cards
+Every page carries Open Graph and Twitter tags. The images are rendered from the site's own `/og/` pages with headless Chrome by `scripts/og-images.sh` into `public/og/` (brand card as PNG, one JPEG per Arabic post) and committed. `scripts/publish.sh` runs it after the build, so cards stay in step with posts.

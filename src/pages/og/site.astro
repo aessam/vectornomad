@@ -1,0 +1,31 @@
+---
+import OgFrame from '../../layouts/OgFrame.astro';
+import { href } from '../../lib/url';
+import { site } from '../../../site.config.mjs';
+const host = new URL(site.url).host;
+---
+
+<OgFrame>
+  <div class="card" style={`--l:url(${href('/brand/side-left.svg')});--r:url(${href('/brand/side-right.svg')});--seal:url(${href('/brand/seal-mask.png')})`}>
+    <div class="strip l"></div>
+    <div class="strip r"></div>
+    <div class="seal"></div>
+    <div class="text">
+      <div class="name">{site.name}</div>
+      <div class="tag">{site.tagline}</div>
+      <div class="host">{host}</div>
+    </div>
+  </div>
+</OgFrame>
+
+<style>
+  .card { position: relative; width: 1200px; height: 630px; background: #184377; color: #fff; display: flex; align-items: center; justify-content: center; gap: 56px; font-family: var(--font-crimson); }
+  .strip { position: absolute; top: 0; bottom: 0; width: 150px; background-repeat: no-repeat; background-size: 100% auto; background-position: top; }
+  .strip.l { left: 0; background-image: var(--l); }
+  .strip.r { right: 0; background-image: var(--r); }
+  .seal { width: 260px; height: 260px; background: #fff; -webkit-mask: var(--seal) center / contain no-repeat; mask: var(--seal) center / contain no-repeat; -webkit-mask-mode: luminance; mask-mode: luminance; }
+  .text { display: flex; flex-direction: column; gap: 10px; max-width: 560px; }
+  .name { font-size: 64px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .tag { font-size: 30px; color: #c1e4e0; line-height: 1.3; }
+  .host { margin-top: 10px; font-family: var(--font-plex-mono); font-size: 20px; color: #9ad5ce; letter-spacing: 0.08em; text-transform: uppercase; }
+</style>

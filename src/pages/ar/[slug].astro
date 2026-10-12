@@ -13,7 +13,7 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<Layout title={post.data.title} lang="ar" description={post.data.summary}>
+<Layout title={post.data.title} lang="ar" description={post.data.summary} ogImage={`/og/ar/${post.id}.jpg`} ogType="article">
   <article class:list={['post', { 'has-hero': !!post.data.image }]}>
     {post.data.image ? (
       <header class="hero">
