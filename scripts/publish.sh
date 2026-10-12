@@ -19,7 +19,7 @@ command -v node >/dev/null || { echo "node missing" >&2; exit 1; }
 [[ -d node_modules ]] || { echo "run npm install first" >&2; exit 1; }
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "not a git repo" >&2; exit 1; }
 branch=$(git rev-parse --abbrev-ref HEAD)
-[[ "$branch" == "main" ]] || { echo "on '$branch', publish from main" >&2; exit 1; }
+[[ "$branch" != "HEAD" ]] || { echo "detached HEAD, check out a branch first" >&2; exit 1; }
 
 # Gate 2: nothing unrelated is half-done. Only the feed snapshot may be dirty.
 dirty=$(git status --porcelain | grep -v '^.. src/data/feeds/' || true)
@@ -45,7 +45,7 @@ git commit -q -m "$msg"
 echo "committed: $msg"
 
 if [[ $push -eq 1 ]]; then
-  git push origin main
+  git push origin "$branch"
   echo "pushed. CI builds and deploys from the committed snapshot."
 else
   echo "not pushed (--no-push)"
