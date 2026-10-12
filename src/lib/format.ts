@@ -1,10 +1,12 @@
 export type Lang = 'en' | 'ar';
 
 export function fmtDate(d: Date, lang: Lang = 'en'): string {
+  // Post dates are calendar days stored as midnight UTC. Format in UTC so the day never shifts with the build machine's zone.
   return new Intl.DateTimeFormat(lang === 'ar' ? 'ar-EG' : 'en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    timeZone: 'UTC',
   }).format(d);
 }
 

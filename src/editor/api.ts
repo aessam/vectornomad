@@ -8,7 +8,7 @@ const SAFE = /^[a-z0-9][a-z0-9-]{0,80}\.md$/;
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json; charset=utf-8' } });
 
-type Doc = { file: string; title: string; date: string; summary: string; draft: boolean; body: string };
+type Doc = { file: string; title: string; date: string; summary: string; image: string; draft: boolean; body: string };
 
 function parse(file: string, text: string): Doc {
   const m = text.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
@@ -22,6 +22,7 @@ function parse(file: string, text: string): Doc {
     title: fm.title ?? '',
     date: fm.date ?? '',
     summary: fm.summary ?? '',
+    image: fm.image ?? '',
     draft: fm.draft === 'true',
     body: m ? m[2].replace(/^\n/, '') : text,
   };
@@ -31,6 +32,7 @@ const quote = (s: string) => `"${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"
 function serialize(d: Doc): string {
   const lines = ['---', `title: ${quote(d.title)}`, `date: ${d.date}`];
   if (d.summary) lines.push(`summary: ${quote(d.summary)}`);
+  if (d.image) lines.push(`image: ${quote(d.image)}`);
   if (d.draft) lines.push('draft: true');
   lines.push('---', '', d.body.replace(/\s+$/, ''), '');
   return lines.join('\n');

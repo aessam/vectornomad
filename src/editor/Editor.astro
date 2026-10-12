@@ -44,10 +44,16 @@ import Layout from '../layouts/Layout.astro';
             <span>مسودّة (لا تُنشر)</span>
           </label>
         </div>
-        <label class="field">
-          <span class="eyebrow">الملخص</span>
-          <input name="summary" />
-        </label>
+        <div class="row">
+          <label class="field grow">
+            <span class="eyebrow">الملخص</span>
+            <input name="summary" />
+          </label>
+          <label class="field">
+            <span class="eyebrow">صورة الرأس</span>
+            <select name="image" dir="ltr"><option value="">بدون</option></select>
+          </label>
+        </div>
         <div class="split">
           <label class="field grow">
             <span class="eyebrow">النص (Markdown)</span>
@@ -55,7 +61,10 @@ import Layout from '../layouts/Layout.astro';
           </label>
           <div class="field grow">
             <span class="eyebrow">المعاينة</span>
-            <article class="preview post" id="preview"></article>
+            <div class="preview-wrap">
+              <div class="preview-hero" id="previewHero" hidden><img id="previewHeroImg" alt="" /><h1 id="previewTitle"></h1></div>
+              <article class="preview post" id="preview"></article>
+            </div>
           </div>
         </div>
         <div class="actions">
@@ -111,8 +120,9 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
-  function fill(d: { file: string; title: string; date: string; summary: string; draft: boolean; body: string }) {
+  function fill(d: { file: string; title: string; date: string; summary: string; image?: string; draft: boolean; body: string }) {
     field('file').value = d.file;
+    (field('image') as unknown as HTMLSelectElement).value = d.image ?? '';
     field('title').value = d.title;
     field('date').value = d.date;
     field('summary').value = d.summary;
@@ -135,7 +145,7 @@ import Layout from '../layouts/Layout.astro';
   function fresh() {
     current = null;
     remember();
-    fill({ file: `${today()}-.md`, title: '', date: today(), summary: '', draft: false, body: '' });
+    fill({ file: `${today()}-.md`, title: '', date: today(), summary: '', image: '', draft: false, body: '' });
     openBtn.disabled = true;
     delBtn.disabled = true;
     field('title').focus();
@@ -143,8 +153,15 @@ import Layout from '../layouts/Layout.astro';
     refresh();
   }
 
+  const hero = $('#previewHero');
+  const heroImg = $<HTMLImageElement>('#previewHeroImg');
+  const heroTitle = $('#previewTitle');
   function render() {
     preview.innerHTML = marked.parse(field('body').value) as string;
+    const img = (field('image') as unknown as HTMLSelectElement).value;
+    hero.hidden = !img;
+    if (img) heroImg.src = img;
+    heroTitle.textContent = field('title').value;
   }
 
   async function save() {
@@ -153,6 +170,7 @@ import Layout from '../layouts/Layout.astro';
       title: field('title').value.trim(),
       date: field('date').value,
       summary: field('summary').value.trim(),
+      image: (field('image') as unknown as HTMLSelectElement).value,
       draft: (field('draft') as HTMLInputElement).checked,
       body: field('body').value,
     };
@@ -173,6 +191,8 @@ import Layout from '../layouts/Layout.astro';
   form.addEventListener('submit', (e) => { e.preventDefault(); save(); });
   document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); save(); } });
   field('body').addEventListener('input', render);
+  field('title').addEventListener('input', render);
+  field('image').addEventListener('change', render);
   $('#new').addEventListener('click', fresh);
   openBtn.addEventListener('click', () => { if (current) window.open(`/ar/${current.replace(/\.md$/, '')}/`, '_blank'); });
   delBtn.addEventListener('click', async () => {
@@ -204,6 +224,10 @@ import Layout from '../layouts/Layout.astro';
   async function refreshImages() {
     const imgs: { file: string; url: string }[] = await api('/editor/api/images');
     thumbs.innerHTML = '';
+    const sel = field('image') as unknown as HTMLSelectElement;
+    const keep = sel.value;
+    sel.innerHTML = '<option value="">بدون</option>' + imgs.map((im) => `<option value="${im.url}">${im.file}</option>`).join('');
+    sel.value = keep;
     for (const im of imgs) {
       const b = document.createElement('button');
       b.type = 'button';
@@ -269,6 +293,12 @@ import Layout from '../layouts/Layout.astro';
   input[name='title'], input[name='summary'] { unicode-bidi: plaintext; text-align: start; }
   input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   .split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  select { font: inherit; font-size: 15px; font-family: var(--font-plex-mono); color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; min-height: 52px; }
+  .preview-wrap { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .preview-wrap .preview { border: 0; border-radius: 0; }
+  .preview-hero { position: relative; }
+  .preview-hero img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent); mask-image: linear-gradient(to bottom, #000 45%, transparent); }
+  .preview-hero h1 { position: absolute; inset-inline: 24px; bottom: 8px; margin: 0; font-size: 32px; line-height: 1.4; }
   .preview { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 24px; min-height: 420px; font-size: 21px; line-height: 2; }
   .preview :global(p) { margin: 0 0 1.2em; }
   .preview :global(h2) { font-size: 28px; margin: 1.4em 0 0.6em; }

@@ -64,6 +64,7 @@ const ar = defineCollection({
     title: z.string(),
     date: z.coerce.date(),
     summary: z.string().optional(),
+    image: z.string().optional(), // header image, path under public/ such as /images/ar/x.jpg
     draft: z.boolean().default(false),
   }),
 });
