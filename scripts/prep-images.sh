@@ -52,7 +52,13 @@ for src in "${files[@]}"; do
   out="$outdir/$slug.jpg"
   tmp=$(mktemp -t prep).jpg
   before=$(stat -f%z "$src")
-  if ! magick "$src" -auto-orient -profile "$SRGB" -resize "${MAX}x${MAX}>" -strip \
+  # Decoder chosen from the extension, never from content sniffing. Limits bound memory on a hostile file.
+  case "${base##*.}" in
+    jpg|jpeg|JPG|JPEG) coder=jpeg ;; png|PNG) coder=png ;; gif|GIF) coder=gif ;; webp|WEBP) coder=webp ;; avif|AVIF) coder=avif ;;
+    heic|HEIC|heif|HEIF) coder=heic ;;
+    *) echo "FAIL $src: unsupported extension" >&2; fail=1; continue ;;
+  esac
+  if ! magick -limit memory 1GiB -limit map 2GiB -limit area 256MP -limit width 20000 -limit height 20000 "$coder:$src" -auto-orient -profile "$SRGB" -resize "${MAX}x${MAX}>" -strip \
        -profile "xmp:$xmp" -set comment "© $AUTHOR" -quality "$QUALITY" -sampling-factor 4:2:0 -interlace JPEG "$tmp"; then
     echo "FAIL $src: magick error" >&2; fail=1; continue
   fi

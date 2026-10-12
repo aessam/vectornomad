@@ -30,6 +30,17 @@ export const GET: APIRoute = async ({ request }) => {
   return json(files.map(({ file, size }) => ({ file, url: `/images/ar/${file}`, size })));
 };
 
+// The bytes must be what the extension claims, or ImageMagick may pick a different decoder.
+function sniff(buf: Buffer): string | null {
+  if (buf.length < 12) return null;
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return '.jpg';
+  if (buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return '.png';
+  if (buf.subarray(0, 6).toString('latin1') === 'GIF87a' || buf.subarray(0, 6).toString('latin1') === 'GIF89a') return '.gif';
+  if (buf.subarray(0, 4).toString('latin1') === 'RIFF' && buf.subarray(8, 12).toString('latin1') === 'WEBP') return '.webp';
+  if (buf.subarray(4, 8).toString('latin1') === 'ftyp' && /^(avif|avis)/.test(buf.subarray(8, 12).toString('latin1'))) return '.avif';
+  return null;
+}
+
 export const POST: APIRoute = async ({ request }) => {
   const denied = sameOrigin(request);
   if (denied) return denied;
@@ -39,8 +50,11 @@ export const POST: APIRoute = async ({ request }) => {
   const { ext, file } = safeName(f.name);
   if (!OK.has(ext)) return json({ error: `unsupported type ${ext || '(none)'}` }, 400);
   if (f.size > 40 * 1024 * 1024) return json({ error: 'larger than 40 MB' }, 400);
+  const bytes = Buffer.from(await f.arrayBuffer());
+  const real = sniff(bytes);
+  if (real !== ext) return json({ error: `content is ${real ?? 'not an image'}, name says ${ext}` }, 400);
   const raw = resolve(DIR, file);
-  await writeFile(raw, Buffer.from(await f.arrayBuffer()));
+  await writeFile(raw, bytes);
   // Resize, strip metadata (GPS included), set VectorNomad.com as author. Originals go to brand/photo-originals.
   try {
     await run('bash', ['scripts/prep-images.sh', raw]);
